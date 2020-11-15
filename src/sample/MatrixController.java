@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import utils.BinaryVectors;
 import utils.MatrixUtils;
 import utils.MatrixUtilsInterface;
 
@@ -129,15 +130,15 @@ public class MatrixController {
 
     public void setValues()
     {
-        if(!nNumberTextArea.getText().isEmpty()){
-            this.matrixRowNumb = Integer.parseInt(nNumberTextArea.getText());
+        if(!kNumberTextArea.getText().isEmpty()){
+            this.matrixRowNumb = Integer.parseInt(kNumberTextArea.getText());
         } else
         {
             //TODO: throw warning or error
         }
-        if(!kNumberTextArea.getText().isEmpty())
+        if(!nNumberTextArea.getText().isEmpty())
         {
-            this.matrixColumnNumb = Integer.parseInt(kNumberTextArea.getText());
+            this.matrixColumnNumb = Integer.parseInt(nNumberTextArea.getText());
         } else
         {
             //TODO: throw warning or error
@@ -170,8 +171,20 @@ public class MatrixController {
 
     @FXML
     void testBttnOnAction(ActionEvent event) {
-        //int[][] tMatrix = matrixUtils.transposeMatrix(generatingMatrix);
+
+        //Testing Control Matrix
+        /*
         int[][] nMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
         setMatrixTextArea(nMatrix);
+         */
+
+        //Testing all vectors of size n
+        BinaryVectors binaryVectors = new BinaryVectors();
+        List<String> vectors = binaryVectors.generateBinaryVectorsOfSizeN(5);
+
+        for (String element : vectors)
+        {
+            System.out.println(element);
+        }
     }
 }

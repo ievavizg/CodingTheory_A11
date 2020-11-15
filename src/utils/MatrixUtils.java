@@ -119,7 +119,6 @@ public class MatrixUtils implements MatrixUtilsInterface{
             }
 
             int[][] tMatrix = transposeMatrix(matrixToTranspose);
-            //TODO - kazkas nygerai
             hMatrix = joinMatrices(tMatrix,generateIdentityMatrix(tMatrix.length));
             return hMatrix;
         } else
@@ -143,11 +142,11 @@ public class MatrixUtils implements MatrixUtilsInterface{
             {
                 for(int j=0; j<columns; j++)
                 {
-                    if(j < oneMatrix.length)
+                    if(j < oneMatrix[0].length)
                     {
                         joinedMatrix[i][j] = oneMatrix[i][j];
                     } else {
-                        joinedMatrix[i][j] = twoMatrix[i][j-oneMatrix.length];
+                        joinedMatrix[i][j] = twoMatrix[i][j-oneMatrix[0].length];
                     }
                 }
             }
