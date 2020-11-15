@@ -1,19 +1,26 @@
 package utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class BinaryVectors {
 
     List<String> vectorsList;
 
+    Map<String,Integer> vectorWeightMap;
+
     // Function to save vectors
     public void saveInTheList(int arr[], int n)
     {
+        int weight = 0;
 
-        vectorsList.add(Arrays.toString(arr).replaceAll("\\[|\\]|,|\\s", ""));
+        for (int i = 0; i < n; i++)
+        {
+            if(arr[i] == 1)
+                weight++;
 
+        }
+
+        vectorWeightMap.put(Arrays.toString(arr).replaceAll("\\[|\\]|,|\\s", ""),weight);
     }
 
     // Function to generate all binary strings
@@ -35,13 +42,15 @@ public class BinaryVectors {
         generateAllBinaryStrings(n, arr, i + 1);
     }
 
-    public List<String> generateBinaryVectorsOfSizeN(int n)
+    public Map<String,Integer> generateBinaryVectorsOfSizeN(int n)
     {
-        vectorsList = new ArrayList<>();
+        //vectorsList = new ArrayList<>();
+        vectorWeightMap = new HashMap<String,Integer> ();
+
         int[] arr = new int[n];
 
         generateAllBinaryStrings(n, arr, 0);
 
-        return vectorsList;
+        return vectorWeightMap;
     }
 }

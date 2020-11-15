@@ -8,9 +8,12 @@ import javafx.scene.control.TextField;
 import utils.BinaryVectors;
 import utils.MatrixUtils;
 import utils.MatrixUtilsInterface;
+import utils.SyndromeUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MatrixController {
@@ -179,12 +182,24 @@ public class MatrixController {
          */
 
         //Testing all vectors of size n
+        /*
         BinaryVectors binaryVectors = new BinaryVectors();
-        List<String> vectors = binaryVectors.generateBinaryVectorsOfSizeN(5);
+        Map<String,Integer> vectors = binaryVectors.generateBinaryVectorsOfSizeN(5);
 
-        for (String element : vectors)
-        {
-            System.out.println(element);
+        for (Map.Entry<String,Integer> vector : vectors.entrySet()) {
+            System.out.print(vector.getKey() + ":");
+            System.out.println(vector.getValue());
+        }
+        */
+
+        //Testing Syndromes
+        int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
+        SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
+        Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
+
+        for (Map.Entry<String,Integer> vector : syndromeMap.entrySet()) {
+            System.out.print(vector.getKey() + ":");
+            System.out.println(vector.getValue());
         }
     }
 }
