@@ -24,6 +24,8 @@ public class MatrixController {
     private int matrixColumnNumb;
     private double corruptionProbability;
 
+    MatrixUtilsInterface matrixUtils = new MatrixUtils();
+
     @FXML
     private TextArea matrixTextArea;
 
@@ -46,10 +48,10 @@ public class MatrixController {
     private TextField encodedVectorTextArea;
 
     @FXML
+    private TextField decodedVectorTextField;
+
+    @FXML
     private Button testBttn;
-
-    MatrixUtilsInterface matrixUtils = new MatrixUtils();
-
 
     @FXML
     void matrixButtonOnAction(ActionEvent event) {
@@ -72,9 +74,11 @@ public class MatrixController {
     @FXML
     void encodeVectorButtonOnAction(ActionEvent event) {
 
+        //TODO: sitas button veikia kaip issaugojimas generuojancios matricos!
+
         //Vektoriaus uzkodavimas, tai generuojancios matricos ir vektoriaus sandauga.
         encryptedVector = matrixUtils.multiplyCodeWithMatrix(unencryptedVector, generatingMatrix);
-        setVectorTextArea(encryptedVector);
+        setVectorTextField(encryptedVector, encodedVectorTextArea);
     }
 
     public int[][] saveMatrixToArray(TextArea matrixTextArea)
@@ -118,7 +122,7 @@ public class MatrixController {
         matrixTextArea.setText(matrixToDisplay.toString());
     }
 
-    public void setVectorTextArea(int[] vector)
+    public void setVectorTextField(int[] vector, TextField textField)
     {
         StringBuilder vectorToDisplay = new StringBuilder();
 
@@ -126,7 +130,7 @@ public class MatrixController {
             vectorToDisplay.append(vector[i]);
         }
 
-        encodedVectorTextArea.setText(vectorToDisplay.toString());
+        textField.setText(vectorToDisplay.toString());
     }
 
     public void setValues()
@@ -219,7 +223,7 @@ public class MatrixController {
 
         int[] decodedVector = decodeVector(encryptedVectorSent,syndromeMap,controlMatrix);
 
-        System.out.println(Arrays.toString(decodedVector).replaceAll("\\[|\\]|,|\\s", ""));
+        setVectorTextField(decodedVector,decodedVectorTextField);
 
     }
 

@@ -1,5 +1,7 @@
 package utils;
 
+import javafx.scene.control.TextArea;
+
 public interface MatrixUtilsInterface {
 
     int[][] generateIdentityMatrix(Integer dimension);

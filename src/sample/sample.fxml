@@ -17,10 +17,12 @@
       <Text layoutX="54.0" layoutY="133.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vektorius:" />
       <TextField fx:id="vectorTextArea" layoutX="133.0" layoutY="115.0" />
       <Text layoutX="339.0" layoutY="49.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Iškraipymo tikimybė:" />
-      <TextField fx:id="probabilityNumberTextArea" layoutX="467.0" layoutY="31.0" prefHeight="27.0" prefWidth="43.0" />
+      <TextField fx:id="probabilityNumberTextArea" layoutX="467.0" layoutY="31.0" prefHeight="27.0" prefWidth="55.0" />
       <TextField fx:id="encodedVectorTextArea" layoutX="363.0" layoutY="178.0" />
       <Text layoutX="233.0" layoutY="196.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Užkoduotas vektorius:" />
       <Button fx:id="encodeVectorButton" layoutX="64.0" layoutY="349.0" mnemonicParsing="false" onAction="#encodeVectorButtonOnAction" text="Užkoduoti vektorių" />
-      <Button fx:id="testBttn" layoutX="249.0" layoutY="256.0" mnemonicParsing="false" onAction="#testBttnOnAction" text="Test Transpose" />
+      <Button fx:id="testBttn" layoutX="322.0" layoutY="243.0" mnemonicParsing="false" onAction="#testBttnOnAction" text="Test Transpose" />
+      <TextField fx:id="decodedVectorTextField" layoutX="363.0" layoutY="304.0" />
+      <Text layoutX="233.0" layoutY="322.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dekoduotas vektorius:" />
    </children>
 </AnchorPane>
