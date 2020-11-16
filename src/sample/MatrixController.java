@@ -210,10 +210,7 @@ public class MatrixController {
 
         int[] decodedVector = decodeVector(encryptedVectorSent,syndromeMap,controlMatrix);
 
-        for (int j=0; j<decodedVector.length; j++)
-        {
-            System.out.println(Arrays.toString(decodedVector));
-        }
+        System.out.println(Arrays.toString(decodedVector).replaceAll("\\[|\\]|,|\\s", ""));
 
     }
 

@@ -76,7 +76,7 @@ public class MatrixUtils implements MatrixUtilsInterface{
                 for (int i = 0; i < rows; i++) {
                     sum += matrix[i][j] * vector[i];
                 }
-                newMatrix[j] = sum;
+                newMatrix[j] = sum % 2;
             }
         }else {
             //TODO exception maybe?
@@ -200,7 +200,7 @@ public class MatrixUtils implements MatrixUtilsInterface{
             for (int j = 0; j < columns; j++) {
                     sum += matrix[i][j] * vector[j];
                 }
-                newMatrix[i] = sum;
+                newMatrix[i] = sum % 2;
             }
         }else {
             //TODO exception maybe?
