@@ -22,6 +22,7 @@ public class MatrixController {
 
     private int matrixRowNumb;
     private int matrixColumnNumb;
+    private double corruptionProbability;
 
     @FXML
     private TextArea matrixTextArea;
@@ -151,7 +152,15 @@ public class MatrixController {
         {
             //TODO: check if vector length is equal k
             this.unencryptedVector = vectorTextAreaToArray(vectorTextArea.getText());
-        } else
+        }else
+        {
+            //TODO: throw warning or error
+        }
+        if(!probabilityNumberTextArea.getText().isEmpty())
+        {
+            //TODO: add check if 0<=p<=1
+            this.corruptionProbability = Double.parseDouble(probabilityNumberTextArea.getText());
+        }else
         {
             //TODO: throw warning or error
         }
@@ -206,7 +215,7 @@ public class MatrixController {
         SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
         Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
 
-        int[] encryptedVectorSent = sendEncryptedVector(encryptedVector);
+        int[] encryptedVectorSent = sendUnencryptedVector(encryptedVector,corruptionProbability);
 
         int[] decodedVector = decodeVector(encryptedVectorSent,syndromeMap,controlMatrix);
 
@@ -247,8 +256,19 @@ public class MatrixController {
         return vectorToReturn;
     }
 
-    public int[] sendEncryptedVector(int[] unencryptedVector){
+    public int[] sendUnencryptedVector(int[] unencryptedVector, double probility){
         int[] encryptedVector = unencryptedVector;
+        int min = 0, max = 1;
+
+        for(int i=0; i<unencryptedVector.length; i++)
+        {
+            double randomNumber = Math.random();
+            if(randomNumber < probility)
+            {
+                encryptedVector[i] = (unencryptedVector[i] + 1) % 2;
+            } else encryptedVector[i] = unencryptedVector[i];
+        }
+
         return encryptedVector;
     }
 }
