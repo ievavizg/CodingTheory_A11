@@ -10,10 +10,7 @@ import utils.MatrixUtils;
 import utils.MatrixUtilsInterface;
 import utils.SyndromeUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class MatrixController {
@@ -75,7 +72,7 @@ public class MatrixController {
     void encodeVectorButtonOnAction(ActionEvent event) {
 
         //Vektoriaus uzkodavimas, tai generuojancios matricos ir vektoriaus sandauga.
-        encryptedVector = matrixUtils.multiplyCodeWithMatrix(generatingMatrix, unencryptedVector);
+        encryptedVector = matrixUtils.multiplyCodeWithMatrix(unencryptedVector, generatingMatrix);
         setVectorTextArea(encryptedVector);
     }
 
@@ -193,6 +190,7 @@ public class MatrixController {
         */
 
         //Testing Syndromes
+        /*
         int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
         SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
         Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
@@ -201,5 +199,59 @@ public class MatrixController {
             System.out.print(vector.getKey() + ":");
             System.out.println(vector.getValue());
         }
+        */
+
+        //Testing decoding
+        int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
+        SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
+        Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
+
+        int[] encryptedVectorSent = sendEncryptedVector(encryptedVector);
+
+        int[] decodedVector = decodeVector(encryptedVectorSent,syndromeMap,controlMatrix);
+
+        for (int j=0; j<decodedVector.length; j++)
+        {
+            System.out.println(Arrays.toString(decodedVector));
+        }
+
+    }
+
+    public int[] decodeVector(int[] encryptedVector, Map<String,Integer> syndromeMap, int[][] controlMatrix){
+        int[] r = encryptedVector;
+        for(int i=0; i<r.length; i++){
+            //randam vektoriaus sindroma
+            int[] syndrome = matrixUtils.multiplyMatrixWithCode(controlMatrix, r);
+
+            //randam sindromo svori
+            int weight = syndromeMap.get(Arrays.toString(syndrome).replaceAll("\\[|\\]|,|\\s", ""));
+
+            //jei svoris 0 break, otherwise
+            if(weight==0){
+                break;
+            } else {
+                int[] eVector = matrixUtils.generateVectorWithOneinI(i, r.length);
+                int[] ePlusRVector = matrixUtils.addVectors(r,eVector);
+
+                int[] syndromeRVector = matrixUtils.multiplyMatrixWithCode(controlMatrix, ePlusRVector);
+                int weightRVector = syndromeMap.get(Arrays.toString(syndromeRVector).replaceAll("\\[|\\]|,|\\s", ""));
+                if (weightRVector < weight)
+                {
+                    r = ePlusRVector;
+                }
+            }
+        }
+
+        int[] vectorToReturn = new int[matrixColumnNumb-matrixRowNumb];
+        for (int j=0; j<matrixColumnNumb-matrixRowNumb; j++)
+        {
+            vectorToReturn[j] = r[j];
+        }
+        return vectorToReturn;
+    }
+
+    public int[] sendEncryptedVector(int[] unencryptedVector){
+        int[] encryptedVector = unencryptedVector;
+        return encryptedVector;
     }
 }

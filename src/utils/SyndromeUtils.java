@@ -37,31 +37,31 @@ public class SyndromeUtils {
             //go through binarVectors list depending on current weight, starting by 0
             for(int weight=0;weight<nNumber; weight++) {
 
+                Map<String,Integer> temporaryBinaryVectors = new HashMap<>();
                 for (Map.Entry<String, Integer> element : possibleBinaryVectors.entrySet()) {
                     if (element.getValue().equals(weight)) {
-                        //pasiimam elementa pagal kuri weight dabar tikrinam ir kiekviena tikrinam ar tinka
-                        //paverciam stringa i array
-
-                        int[] vectorFromMap = Utils.stringToIntegerArray(element.getKey());
-
-                        //patikrinti ar tinka (sudauginti H kart vektorius) ir jei gauto nera map'e ideti
-                        int[] syndrome = matrixUtils.multiplyCodeWithMatrix(controlMatrix, vectorFromMap);
-
-                        boolean found = false;
-
-                        for (Map.Entry<String, Integer> entry : syndromeMap.entrySet()) {
-                            if (entry.getKey().equals(syndrome.toString())) {
-                                found = true;
-                            }
-                        }
-                        if (!found) {
-                            syndromeMap.put(Arrays.toString(syndrome).replaceAll("\\[|\\]|,|\\s", ""), weight);
-                        }
-
-                        //check if syndromeTable is full
-                        if (syndromeMap.size() == rowsNumber)
-                            break;
+                        temporaryBinaryVectors.put(element.getKey(),element.getValue());
+                        //TODO:kai visus sudeda break, pries tai paskaiciuoti kiek turi rows buti temp mape
                     }
+                }
+
+                for (Map.Entry<String, Integer> element : temporaryBinaryVectors.entrySet()) {
+                    //pasiimam elementa pagal kuri weight dabar tikrinam ir kiekviena tikrinam ar tinka
+                    //paverciam stringa i array
+
+                    int[] vectorFromMap = Utils.stringToIntegerArray(element.getKey());
+
+                    //patikrinti ar tinka (sudauginti H kart vektorius) ir jei gauto nera map'e ideti
+                    int[] syndrome = matrixUtils.multiplyMatrixWithCode(controlMatrix, vectorFromMap);
+
+                    if(!(syndromeMap.containsKey(Arrays.toString(syndrome).replaceAll("\\[|\\]|,|\\s", "")))) {
+                        syndromeMap.put(Arrays.toString(syndrome).replaceAll("\\[|\\]|,|\\s", ""), weight);
+                        possibleBinaryVectors.remove(element);
+                    }
+
+                    //check if syndromeTable is full
+                    if (syndromeMap.size() == rowsNumber)
+                        break;
                 }
                 if (syndromeMap.size() == rowsNumber)
                     break;

@@ -60,23 +60,26 @@ public class MatrixUtils implements MatrixUtilsInterface{
     }
 
     @Override
-    public int[] multiplyCodeWithMatrix(int [][] matrix, int[] vector)
+    public int[] multiplyCodeWithMatrix(int[] vector, int [][] matrix)
     {
         int rows = matrix.length;
         int columns = matrix[0].length;
         int sum = 0;
 
-        int[] newMatrix = new int[rows];
+        int[] newMatrix = new int[columns];
 
-        if (vector.length == columns) {
+        if (vector.length == matrix.length) {
 
-            for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+
                 sum = 0;
-                for (int j = 0; j < columns; j++) {
-                    sum += matrix[i][j] * vector[j];
+                for (int i = 0; i < rows; i++) {
+                    sum += matrix[i][j] * vector[i];
                 }
-                newMatrix[i] = sum;
+                newMatrix[j] = sum;
             }
+        }else {
+            //TODO exception maybe?
         }
 
         return newMatrix;
@@ -154,6 +157,56 @@ public class MatrixUtils implements MatrixUtilsInterface{
             return joinedMatrix;
         }
         return new int[0][];
+    }
+
+    @Override
+    public int[] generateVectorWithOneinI(int i, int size) {
+        int[] vector = new int[size];
+
+        for(int n =0; n<size; n++)
+        {
+            if(i==n)
+                vector[n] = 1;
+            else vector[n] = 0;
+        }
+
+        return vector;
+    }
+
+    @Override
+    public int[] addVectors(int[] vectorOne, int[] vectorTwo) {
+        int[] addedVectors = new int[vectorOne.length];
+        for(int i=0; i<vectorOne.length; i++)
+        {
+            int sum = vectorOne[i] + vectorTwo[i];
+            addedVectors[i] = sum % 2;
+        }
+
+        return addedVectors;
+    }
+
+    @Override
+    public int[] multiplyMatrixWithCode(int[][] matrix, int[] vector) {
+        int rows = matrix.length;
+        int columns = matrix[0].length;
+        int sum = 0;
+
+        int[] newMatrix = new int[rows];
+
+        if (vector.length == matrix[0].length) {
+
+        for (int i = 0; i < rows; i++) {
+            sum = 0;
+            for (int j = 0; j < columns; j++) {
+                    sum += matrix[i][j] * vector[j];
+                }
+                newMatrix[i] = sum;
+            }
+        }else {
+            //TODO exception maybe?
+        }
+
+        return newMatrix;
     }
 
 }
