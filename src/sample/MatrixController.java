@@ -1,24 +1,38 @@
 package sample;
 
+import com.sun.webkit.network.Util;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import utils.*;
 
+import java.awt.event.InputMethodEvent;
+import java.net.URL;
 import java.util.*;
 
 
-public class MatrixController {
+public class MatrixController implements Initializable {
 
     private int[][] generatingMatrix;
     private int[] unencryptedVector;
     private int[] encryptedVector;
+    private List<Integer> corruptedValues;
 
     private int matrixRowNumb;
     private int matrixColumnNumb;
     private double corruptionProbability;
+
+    private String generatingMatrixString;
+
+    private boolean correctGeneratingMatrix;
+
+    private int[] encryptedVectorSentThroughChannel;
+
+    int vectorLength;
 
     MatrixUtilsInterface matrixUtils = new MatrixUtils();
 
@@ -47,139 +61,230 @@ public class MatrixController {
     private TextField decodedVectorTextField;
 
     @FXML
-    private Button testBttn;
+    private Button decodeButton;
 
     @FXML
-    void matrixButtonOnAction(ActionEvent event) {
+    private TextField vectorLengthTextField;
 
-        setValues();
+    @FXML
+    private TextArea mistakesTextArea;
 
-        if(!matrixTextArea.getText().isEmpty()) {
-            generatingMatrix = Utils.textAreaToTwoDimensionalArray(matrixTextArea);
-        } else
+    @FXML
+    private TextField vectorToDecodeTextField;
+
+    @FXML
+    void generateRandomMatrixButtonOnAction(ActionEvent event) {
+        // 1. Check if all values are correct:
+        //  1.1. k >= n
+        //  1.2. vectorLength = k
+        // 2. If k=n, then generate only unitary matrix, else generate generating matrix with random matrix
+        // 3.
+
+        boolean alert = false;
+
+        if(matrixColumnNumb < matrixRowNumb)
         {
+            alert = true;
+            Utils.createAlert("Netinkami parametrai", "Kodo ilgis negali būti mažesnis už dimensiją");
+        } else if(matrixRowNumb != unencryptedVector.length) {
+            alert = true;
+            Utils.createAlert("Netinkami parametrai", "Įvesto vektoriaus ilgis turi būti lygus dimensijai");
+        } else {
             int[][] unitMa = matrixUtils.generateIdentityMatrix(matrixRowNumb);
-            int[][] randomMa = matrixUtils.generateRandomMatrix(matrixRowNumb,matrixColumnNumb-matrixRowNumb);
-            //TODO: find out what to do if n == k
-            generatingMatrix = matrixUtils.generateGeneratingMatrix(unitMa,randomMa);
-            Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);
+            if(matrixRowNumb == matrixColumnNumb){
+                generatingMatrix = unitMa;
+            } else {
+                int[][] randomMa = matrixUtils.generateRandomMatrix(matrixRowNumb,matrixColumnNumb-matrixRowNumb);
+                generatingMatrix = matrixUtils.generateGeneratingMatrix(unitMa,randomMa);
+            }
         }
 
+        if (!alert)
+        {
+            Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);
+            generatingMatrixString = matrixTextArea.toString();
+            correctGeneratingMatrix = true;
+        }
     }
 
     @FXML
     void encodeVectorButtonOnAction(ActionEvent event) {
 
-        //TODO: sitas button veikia kaip issaugojimas generuojancios matricos!
+        //1. Check if generatingMatrixString is not empty
+        //2. Check if generating matrix is as it should be
+        //  2.1. rows = k
+        //  2.2. columns = n
+        //3. If matrix is correct -> encrypt vector by multiplying vector and generatingMatrix
+        //4. Check if corruption probability is not null
+        //5. Send through channel with corruption probability
 
-        //Vektoriaus uzkodavimas, tai generuojancios matricos ir vektoriaus sandauga.
-        encryptedVector = matrixUtils.multiplyCodeWithMatrix(unencryptedVector, generatingMatrix);
-        setVectorTextField(encryptedVector, encodedVectorTextArea);
-    }
 
-    public void setVectorTextField(int[] vector, TextField textField)
-    {
-        StringBuilder vectorToDisplay = new StringBuilder();
+        correctGeneratingMatrix = checkIfGeneratingMatrixIsCorrect();
 
-        for (int i = 0; i < vector.length; i++) {
-            vectorToDisplay.append(vector[i]);
-        }
+        if(correctGeneratingMatrix) {
+            encryptedVector = matrixUtils.multiplyCodeWithMatrix(unencryptedVector, generatingMatrix);
+            Utils.setVectorTextField(encryptedVector, encodedVectorTextArea);
 
-        textField.setText(vectorToDisplay.toString());
-    }
-
-    public void setValues()
-    {
-        if(!kNumberTextArea.getText().isEmpty()){
-            this.matrixRowNumb = Integer.parseInt(kNumberTextArea.getText());
-        } else
-        {
-            //TODO: throw warning or error
-        }
-        if(!nNumberTextArea.getText().isEmpty())
-        {
-            this.matrixColumnNumb = Integer.parseInt(nNumberTextArea.getText());
-        } else
-        {
-            //TODO: throw warning or error
-        }
-        if(matrixRowNumb<matrixColumnNumb)
-        {
-            //TODO: throw warning or error
-        }
-        if(!vectorTextArea.getText().isEmpty())
-        {
-            //TODO: check if vector length is equal k
-            this.unencryptedVector = vectorTextAreaToArray(vectorTextArea.getText());
-        }else
-        {
-            //TODO: throw warning or error
-        }
-        if(!probabilityNumberTextArea.getText().isEmpty())
-        {
-            //TODO: add check if 0<=p<=1
-            this.corruptionProbability = Double.parseDouble(probabilityNumberTextArea.getText());
-        }else
-        {
-            //TODO: throw warning or error
+            if(corruptionProbability == 0.0){
+                Utils.createAlert("Iškraipymo tikymybė neįvesta",
+                        "Iškraipymo tikimybė buvo neįvesta, todėl ji laikoma 0, galite pakeisti ją ir siųsti vektorių per kanalą iš naujo");
+            }
+            sendVectorThroughChanel();
+            Utils.setVectorTextField(encryptedVectorSentThroughChannel, vectorToDecodeTextField);
+            Utils.setMistakesListToTextArea(corruptedValues,mistakesTextArea,". ");
         }
     }
 
-    public int[] vectorTextAreaToArray(String vectorAsString)
-    {
-        int[] newVector = new int[vectorAsString.length()];
+    public void sendVectorThroughChanel() {
+        encryptedVectorSentThroughChannel = encryptedVector;
+        int j = 0;
+        corruptedValues = new ArrayList<>();
 
-        for(int i=0; i<vectorAsString.length(); i++)
+        for(int i=0; i<encryptedVector.length; i++)
         {
-            newVector[i] = (int)vectorAsString.charAt(i) - 48;
+            double randomNumber = Math.random();
+            if(randomNumber < corruptionProbability)
+            {
+                encryptedVectorSentThroughChannel[i] = (encryptedVector[i] + 1) % 2;
+                corruptedValues.add(i + 1);
+                j++;
+
+            } else encryptedVectorSentThroughChannel[i] = encryptedVector[i];
         }
 
-        return newVector;
     }
 
     @FXML
-    void testBttnOnAction(ActionEvent event) {
+    void decodeButtonOnAction(ActionEvent event) {
 
-        //Testing Control Matrix
-        /*
-        int[][] nMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
-        setMatrixTextArea(nMatrix);
-         */
 
-        //Testing all vectors of size n
-        /*
-        BinaryVectors binaryVectors = new BinaryVectors();
-        Map<String,Integer> vectors = binaryVectors.generateBinaryVectorsOfSizeN(5);
+        //1. Check if vector from chanel is correct
+        //2. Check if generating matrix wasn't changed!
+        //3.
 
-        for (Map.Entry<String,Integer> vector : vectors.entrySet()) {
-            System.out.print(vector.getKey() + ":");
-            System.out.println(vector.getValue());
+
+        if(!correctGeneratingMatrix){
+            Utils.createAlert("Netinkama matrica",
+                    "Generuojanti matrica arba neužpildyta arba buvo pakeista, todėl reikia iš naujo užkoduoti vektorių.");
+        } else if(encryptedVectorSentThroughChannel.length != matrixColumnNumb)
+        {
+            Utils.createAlert("Netinkamas vektorius",
+                    "Notint dekoduoti vektorių, jo ilgis turi būti lygus kodo ilgiui");
+        } else {
+
+            int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
+            SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
+            Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
+
+            int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSentThroughChannel,syndromeMap,controlMatrix,matrixColumnNumb,matrixRowNumb);
+
+            Utils.setVectorTextField(decodedVector,decodedVectorTextField);
         }
-        */
-
-        //Testing Syndromes
-        /*
-        int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
-        SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
-        Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
-
-        for (Map.Entry<String,Integer> vector : syndromeMap.entrySet()) {
-            System.out.print(vector.getKey() + ":");
-            System.out.println(vector.getValue());
-        }
-        */
-
-        //Testing decoding
-        int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
-        SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
-        Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
-
-        int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(encryptedVector,corruptionProbability);
-
-        int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSent,syndromeMap,controlMatrix,matrixColumnNumb,matrixRowNumb);
-
-        setVectorTextField(decodedVector,decodedVectorTextField);
-
     }
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        //Get vector length on every change and since k has to be equal to vector length set it.
+        vectorLengthTextField.textProperty().addListener((obs, oldText, newText) -> {
+
+            if(!newText.isEmpty()){
+                vectorLength = Utils.tryParseToInteger(vectorLengthTextField.getText());
+            }
+            kNumberTextArea.setText(newText);
+        });
+
+        //Get k (how many rows in generating matrix should be) on every change and since k has to be equal to vector length set it.
+        kNumberTextArea.textProperty().addListener((obs, oldText, newText) -> {
+            if(!newText.isEmpty()) {
+                matrixRowNumb = Utils.tryParseToInteger(kNumberTextArea.getText());
+            }
+            vectorLengthTextField.setText(newText);
+        });
+
+        //Get n (how many columns in generating matrix should be) on every change
+        nNumberTextArea.textProperty().addListener((obs, oldText, newText) -> {
+            if(!newText.isEmpty()) {
+                matrixColumnNumb = Utils.tryParseToInteger(nNumberTextArea.getText());
+            }
+        });
+
+        //Get corruptionProbability on every change
+        probabilityNumberTextArea.textProperty().addListener((obs, oldText, newText) -> {
+            if(!newText.isEmpty()) {
+                corruptionProbability = Utils.tryParseToDouble(probabilityNumberTextArea.getText());
+            }
+        });
+
+        //Get vector on every change
+        vectorTextArea.textProperty().addListener((obs, oldText, newText) -> {
+            if(!newText.isEmpty()) {
+                unencryptedVector = Utils.stringToBinaryIntegerArrayWithAlert(vectorTextArea.getText());
+            }
+        });
+
+        //Get generating matrix on every change
+        matrixTextArea.textProperty().addListener((obs, oldText, newText) -> {
+            if(!newText.isEmpty()) {
+                generatingMatrixString = matrixTextArea.getText();
+                correctGeneratingMatrix = false;
+            }
+        });
+
+        vectorToDecodeTextField.textProperty().addListener((obs, oldText, newText) -> {
+            if(!newText.isEmpty()) {
+                encryptedVectorSentThroughChannel = Utils.stringToIntegerArray(vectorToDecodeTextField.getText());
+            }
+        });
+    }
+
+    private boolean checkIfGeneratingMatrixIsCorrect(){
+        boolean alert = false;
+
+        if(matrixTextArea.getText().isEmpty())
+        {
+            Utils.createAlert("Neužpildyta generuojanti matrica",
+                    "Prašome užpildyti generuojančios matricos lauką (gali būti be standartinio pavidalo matricos)");
+            alert = true;
+        } else if(!alert){
+            int[][] scannedMatrix = Utils.textAreaToTwoDimensionalArray(matrixTextArea);
+
+            if(scannedMatrix!=null){
+
+                if (scannedMatrix.length != matrixRowNumb) {
+                    Utils.createAlert("Neteisingai įvesta generuojanti matrica",
+                            "Prašome užpildyti generuojančios matricos lauką tinkamai, eilučių skaičius turi būti lygus dimensijai");
+                    alert = true;
+                } else {
+                    int columnLength = scannedMatrix[0].length;
+                    for (int i = 0; i < scannedMatrix.length; i++) {
+                        if (columnLength != scannedMatrix[i].length) {
+                            Utils.createAlert("Neteisingai įvesta generuojanti matrica",
+                                    "Nevienodi stulpelių ilgiai, prašome pasitikslinti įvestą / pakeistą generuojančią matricą");
+                            alert = true;
+                        }
+                    }
+                    if (!alert) {
+                        if (columnLength == matrixColumnNumb) {
+                            generatingMatrix = scannedMatrix;
+
+                        } else if (columnLength == matrixColumnNumb - matrixRowNumb) {
+                            int[][] unitMa = matrixUtils.generateIdentityMatrix(matrixRowNumb);
+                            generatingMatrix = matrixUtils.generateGeneratingMatrix(unitMa, scannedMatrix);
+                            Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);
+                            generatingMatrixString = matrixTextArea.toString();
+                        } else {
+                            Utils.createAlert("Neteisingai įvesta generuojanti matrica",
+                                    "Prašome užpildyti generuojančios matricos lauką tinkamai, tai yra I | A matricos arba tik A matrica");
+                            alert = true;
+                        }
+                    }
+                }
+            } else {
+                alert = true;
+            }
+        }
+
+        return (!alert);
+    }
 }

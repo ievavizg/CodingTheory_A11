@@ -6,23 +6,29 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.MatrixController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="495.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.MatrixController">
    <children>
-      <TextArea fx:id="matrixTextArea" layoutX="48.0" layoutY="179.0" prefHeight="154.0" prefWidth="169.0" />
-      <Button fx:id="matrixButton" layoutX="342.0" layoutY="115.0" mnemonicParsing="false" onAction="#matrixButtonOnAction" text="Generuoti matricą" />
-      <TextField fx:id="kNumberTextArea" layoutX="133.0" layoutY="31.0" prefHeight="27.0" prefWidth="43.0" />
-      <Text layoutX="54.0" layoutY="49.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dimensija (k):" />
-      <Text layoutX="53.0" layoutY="91.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kodo ilgis (n):" />
-      <TextField fx:id="nNumberTextArea" layoutX="133.0" layoutY="73.0" prefHeight="27.0" prefWidth="43.0" />
-      <Text layoutX="54.0" layoutY="133.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vektorius:" />
-      <TextField fx:id="vectorTextArea" layoutX="133.0" layoutY="115.0" />
-      <Text layoutX="339.0" layoutY="49.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Iškraipymo tikimybė:" />
-      <TextField fx:id="probabilityNumberTextArea" layoutX="467.0" layoutY="31.0" prefHeight="27.0" prefWidth="55.0" />
-      <TextField fx:id="encodedVectorTextArea" layoutX="363.0" layoutY="178.0" />
-      <Text layoutX="233.0" layoutY="196.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Užkoduotas vektorius:" />
-      <Button fx:id="encodeVectorButton" layoutX="64.0" layoutY="349.0" mnemonicParsing="false" onAction="#encodeVectorButtonOnAction" text="Užkoduoti vektorių" />
-      <Button fx:id="testBttn" layoutX="322.0" layoutY="243.0" mnemonicParsing="false" onAction="#testBttnOnAction" text="Test Transpose" />
-      <TextField fx:id="decodedVectorTextField" layoutX="363.0" layoutY="304.0" />
-      <Text layoutX="233.0" layoutY="322.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dekoduotas vektorius:" />
+      <TextArea fx:id="matrixTextArea" layoutX="44.0" layoutY="205.0" prefHeight="154.0" prefWidth="169.0" />
+      <Button fx:id="generateRandomMatrixButton" layoutX="337.0" layoutY="137.0" mnemonicParsing="false" onAction="#generateRandomMatrixButtonOnAction" prefHeight="27.0" prefWidth="187.0" text="Generuoti atsitiktinę matricą" />
+      <TextField fx:id="kNumberTextArea" layoutX="207.0" layoutY="56.0" prefHeight="27.0" prefWidth="63.0" />
+      <Text layoutX="49.0" layoutY="71.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dimensija (k):" />
+      <Text layoutX="48.0" layoutY="113.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kodo ilgis (n):" />
+      <TextField fx:id="nNumberTextArea" layoutX="207.0" layoutY="98.0" prefHeight="27.0" prefWidth="63.0" />
+      <Text layoutX="49.0" layoutY="155.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vektorius:" />
+      <TextField fx:id="vectorTextArea" layoutX="128.0" layoutY="137.0" />
+      <Text layoutX="332.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Iškraipymo tikimybė:" />
+      <TextField fx:id="probabilityNumberTextArea" layoutX="461.0" layoutY="19.0" prefHeight="27.0" prefWidth="63.0" />
+      <TextField fx:id="encodedVectorTextArea" editable="false" layoutX="381.0" layoutY="210.0" prefHeight="27.0" prefWidth="196.0" />
+      <Text layoutX="231.0" layoutY="228.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Užkoduotas vektorius:" />
+      <Button fx:id="encodeVectorButton" layoutX="62.0" layoutY="384.0" mnemonicParsing="false" onAction="#encodeVectorButtonOnAction" text="Užkoduoti vektorių" />
+      <Button fx:id="decodeButton" layoutX="284.0" layoutY="384.0" mnemonicParsing="false" onAction="#decodeButtonOnAction" text="Dekoduoti vektorių išėjusį iš kanalo" />
+      <TextField fx:id="decodedVectorTextField" editable="false" layoutX="386.0" layoutY="435.0" prefHeight="27.0" prefWidth="196.0" />
+      <Text layoutX="231.0" layoutY="453.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dekoduotas vektorius:" />
+      <Text layoutX="49.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Būsimo vektoriaus ilgis:" />
+      <TextField fx:id="vectorLengthTextField" layoutX="207.0" layoutY="19.0" prefHeight="27.0" prefWidth="63.0" />
+      <TextField fx:id="vectorToDecodeTextField" layoutX="381.0" layoutY="331.0" prefHeight="27.0" prefWidth="196.0" />
+      <Text layoutX="231.0" layoutY="349.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vektorius išėjęs iš kanalo:" />
+      <TextArea fx:id="mistakesTextArea" editable="false" layoutX="232.0" layoutY="282.0" prefHeight="43.0" prefWidth="345.0" />
+      <Text layoutX="232.0" layoutY="268.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vieta vektoriuje, kur padarytos klaidos siunčiant per kanalą:" />
    </children>
 </AnchorPane>
