@@ -1,5 +1,6 @@
 package sample;
 
+import com.sun.webkit.network.Util;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -7,17 +8,17 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import utils.MatrixUtils;
 import utils.MatrixUtilsInterface;
+import utils.SyndromeUtils;
 import utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TextScenarioController {
 
-    private List<String> lineList = new ArrayList<String>();
     private int[][] generatingMatrix;
     private String textToEncrypt;
-    private int[] unencryptedVector;
     private int[] encryptedVector;
     private String binaryTextToEncrypt;
     private List<String> binaryTextOfSizeKList;
@@ -79,7 +80,8 @@ public class TextScenarioController {
         for (int[] vector:encodedVectorsList) {
             encodedFullVector.append(Utils.intArrayToString(vector));
         }
-        setTextToTextField(encodedFullVector.toString(),encodedTextArea);
+
+        Utils.setTextToTextField(encodedFullVector.toString(),encodedTextArea);
     }
 
     @FXML
@@ -88,17 +90,18 @@ public class TextScenarioController {
         setValues();
 
         if(!matrixTextArea.getText().isEmpty()) {
-            generatingMatrix = saveMatrixToArray(matrixTextArea);
+            generatingMatrix = Utils.textAreaToTwoDimensionalArray(matrixTextArea);
         } else
         {
             int[][] unitMa = matrixUtils.generateIdentityMatrix(sizeOfVector);
             int[][] randomMa = matrixUtils.generateRandomMatrix(sizeOfVector,matrixColumnNumb-sizeOfVector);
             //TODO: find out what to do if n == k
             generatingMatrix = matrixUtils.generateGeneratingMatrix(unitMa,randomMa);
-            setMatrixTextArea(generatingMatrix);
+            Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);
         }
 
         //Convert given text to binaries
+        //Convert each char to binary?
         binaryTextToEncrypt = Utils.convertStringToBinary(textToEncrypt);
 
         //Save binaries of size k into the list
@@ -124,11 +127,22 @@ public class TextScenarioController {
     @FXML
     void testBttnOnAction(ActionEvent event) {
 
-    }
+        int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
+        SyndromeUtils syndromeUtils = new SyndromeUtils(sizeOfVector,matrixColumnNumb,controlMatrix);
+        Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
 
-    public void setTextToTextField(String text, TextArea textArea)
-    {
-        textArea.setText(text);
+        StringBuilder decodedStringBuilderInBinary = new StringBuilder();
+
+        for (int[] vectorToDecode:encodedVectorsList) {
+
+            int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(vectorToDecode,corruptionProbability);
+            int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSent,syndromeMap,controlMatrix,matrixColumnNumb,sizeOfVector);
+            decodedStringBuilderInBinary.append(Utils.intArrayToString(decodedVector));
+        }
+
+        String decodedText = Utils.binaryToText(decodedStringBuilderInBinary.toString());
+
+        decodedTextArea.setText(decodedText);
     }
 
     public void setValues()
@@ -165,46 +179,5 @@ public class TextScenarioController {
         {
             //TODO: throw warning or error
         }
-    }
-
-    public int[][] saveMatrixToArray(TextArea matrixTextArea)
-    {
-        for (String line : matrixTextArea.getText().split("\\n")) {
-            lineList.add(line);
-            matrixColumnNumb = line.length() - line.replace(" ", "").length() + 1;
-        }
-
-        generatingMatrix = new int[lineList.size()][matrixColumnNumb];
-        int i = 0, j = 0;
-
-        for (String newLine : lineList)
-        {
-            j = 0;
-
-            for (String numberInString : newLine.split(" ")) {
-                generatingMatrix[i][j] = Integer.parseInt(numberInString);
-                j++;
-            }
-            i++;
-        }
-
-        return generatingMatrix;
-    }
-
-    public void setMatrixTextArea(int[][] matrix)
-    {
-        StringBuilder matrixToDisplay = new StringBuilder();
-
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++)
-            {
-                matrixToDisplay.append(matrix[i][j]);
-                if (j+1 < matrix[i].length)
-                    matrixToDisplay.append(" ");
-            }
-            matrixToDisplay.append(System.getProperty("line.separator"));
-        }
-
-        matrixTextArea.setText(matrixToDisplay.toString());
     }
 }

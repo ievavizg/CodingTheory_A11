@@ -5,17 +5,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import utils.BinaryVectors;
-import utils.MatrixUtils;
-import utils.MatrixUtilsInterface;
-import utils.SyndromeUtils;
+import utils.*;
 
 import java.util.*;
 
 
 public class MatrixController {
 
-    private List<String> lineList = new ArrayList<String>();
     private int[][] generatingMatrix;
     private int[] unencryptedVector;
     private int[] encryptedVector;
@@ -59,14 +55,14 @@ public class MatrixController {
         setValues();
 
         if(!matrixTextArea.getText().isEmpty()) {
-            generatingMatrix = saveMatrixToArray(matrixTextArea);
+            generatingMatrix = Utils.textAreaToTwoDimensionalArray(matrixTextArea);
         } else
         {
             int[][] unitMa = matrixUtils.generateIdentityMatrix(matrixRowNumb);
             int[][] randomMa = matrixUtils.generateRandomMatrix(matrixRowNumb,matrixColumnNumb-matrixRowNumb);
             //TODO: find out what to do if n == k
             generatingMatrix = matrixUtils.generateGeneratingMatrix(unitMa,randomMa);
-            setMatrixTextArea(generatingMatrix);
+            Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);
         }
 
     }
@@ -79,47 +75,6 @@ public class MatrixController {
         //Vektoriaus uzkodavimas, tai generuojancios matricos ir vektoriaus sandauga.
         encryptedVector = matrixUtils.multiplyCodeWithMatrix(unencryptedVector, generatingMatrix);
         setVectorTextField(encryptedVector, encodedVectorTextArea);
-    }
-
-    public int[][] saveMatrixToArray(TextArea matrixTextArea)
-    {
-        for (String line : matrixTextArea.getText().split("\\n")) {
-            lineList.add(line);
-            matrixColumnNumb = line.length() - line.replace(" ", "").length() + 1;
-        }
-
-        generatingMatrix = new int[lineList.size()][matrixColumnNumb];
-        int i = 0, j = 0;
-
-        for (String newLine : lineList)
-        {
-            j = 0;
-
-            for (String numberInString : newLine.split(" ")) {
-                generatingMatrix[i][j] = Integer.parseInt(numberInString);
-                j++;
-            }
-            i++;
-        }
-
-        return generatingMatrix;
-    }
-
-    public void setMatrixTextArea(int[][] matrix)
-    {
-        StringBuilder matrixToDisplay = new StringBuilder();
-
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++)
-            {
-                matrixToDisplay.append(matrix[i][j]);
-                if (j+1 < matrix[i].length)
-                    matrixToDisplay.append(" ");
-            }
-            matrixToDisplay.append(System.getProperty("line.separator"));
-        }
-
-        matrixTextArea.setText(matrixToDisplay.toString());
     }
 
     public void setVectorTextField(int[] vector, TextField textField)
@@ -219,60 +174,12 @@ public class MatrixController {
         SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
         Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
 
-        int[] encryptedVectorSent = sendUnencryptedVector(encryptedVector,corruptionProbability);
+        int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(encryptedVector,corruptionProbability);
 
-        int[] decodedVector = decodeVector(encryptedVectorSent,syndromeMap,controlMatrix);
+        int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSent,syndromeMap,controlMatrix,matrixColumnNumb,matrixRowNumb);
 
         setVectorTextField(decodedVector,decodedVectorTextField);
 
     }
 
-    public int[] decodeVector(int[] encryptedVector, Map<String,Integer> syndromeMap, int[][] controlMatrix){
-        int[] r = encryptedVector;
-        for(int i=0; i<r.length; i++){
-            //randam vektoriaus sindroma
-            int[] syndrome = matrixUtils.multiplyMatrixWithCode(controlMatrix, r);
-
-            //randam sindromo svori
-            int weight = syndromeMap.get(Arrays.toString(syndrome).replaceAll("\\[|\\]|,|\\s", ""));
-
-            //jei svoris 0 break, otherwise
-            if(weight==0){
-                break;
-            } else {
-                int[] eVector = matrixUtils.generateVectorWithOneinI(i, r.length);
-                int[] ePlusRVector = matrixUtils.addVectors(r,eVector);
-
-                int[] syndromeRVector = matrixUtils.multiplyMatrixWithCode(controlMatrix, ePlusRVector);
-                int weightRVector = syndromeMap.get(Arrays.toString(syndromeRVector).replaceAll("\\[|\\]|,|\\s", ""));
-                if (weightRVector < weight)
-                {
-                    r = ePlusRVector;
-                }
-            }
-        }
-
-        int[] vectorToReturn = new int[matrixColumnNumb-matrixRowNumb];
-        for (int j=0; j<matrixColumnNumb-matrixRowNumb; j++)
-        {
-            vectorToReturn[j] = r[j];
-        }
-        return vectorToReturn;
-    }
-
-    public int[] sendUnencryptedVector(int[] unencryptedVector, double probility){
-        int[] encryptedVector = unencryptedVector;
-        int min = 0, max = 1;
-
-        for(int i=0; i<unencryptedVector.length; i++)
-        {
-            double randomNumber = Math.random();
-            if(randomNumber < probility)
-            {
-                encryptedVector[i] = (unencryptedVector[i] + 1) % 2;
-            } else encryptedVector[i] = unencryptedVector[i];
-        }
-
-        return encryptedVector;
-    }
 }

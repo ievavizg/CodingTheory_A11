@@ -1,5 +1,8 @@
 package utils;
 
+import java.util.Arrays;
+import java.util.Map;
+
 public class MatrixUtils implements MatrixUtilsInterface{
 
     @Override
@@ -209,6 +212,53 @@ public class MatrixUtils implements MatrixUtilsInterface{
         return newMatrix;
     }
 
+    @Override
+    public int[] sendVectorThroughChanel(int[] vector, double probability) {
+        int[] encryptedVector = vector;
+        int min = 0, max = 1;
 
+        for(int i=0; i<vector.length; i++)
+        {
+            double randomNumber = Math.random();
+            if(randomNumber < probability)
+            {
+                encryptedVector[i] = (vector[i] + 1) % 2;
+            } else encryptedVector[i] = vector[i];
+        }
 
+        return encryptedVector;
+    }
+
+    @Override
+    public int[] decodeVector(int[] encryptedVector, Map<String, Integer> syndromeMap, int[][] controlMatrix, int matrixColumnNumb, int matrixRowNumb) {
+        int[] r = encryptedVector;
+        for (int i = 0; i < r.length; i++) {
+            //randam vektoriaus sindroma
+            int[] syndrome = multiplyMatrixWithCode(controlMatrix, r);
+
+            //randam sindromo svori
+            int weight = syndromeMap.get(Arrays.toString(syndrome).replaceAll("\\[|\\]|,|\\s", ""));
+
+            //jei svoris 0 break, otherwise
+            if (weight == 0) {
+                break;
+            } else {
+                int[] eVector = generateVectorWithOneinI(i, r.length);
+                int[] ePlusRVector = addVectors(r, eVector);
+
+                int[] syndromeRVector = multiplyMatrixWithCode(controlMatrix, ePlusRVector);
+                int weightRVector = syndromeMap.get(Utils.intArrayToString(syndromeRVector));
+                if (weightRVector < weight) {
+                    r = ePlusRVector;
+                }
+            }
+        }
+
+        int[] vectorToReturn = new int[matrixColumnNumb-matrixRowNumb];
+        for (int j=0; j<matrixColumnNumb-matrixRowNumb; j++)
+        {
+            vectorToReturn[j] = r[j];
+        }
+        return vectorToReturn;
+    }
 }

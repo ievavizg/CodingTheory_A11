@@ -2,6 +2,8 @@ package utils;
 
 import javafx.scene.control.TextArea;
 
+import java.util.Map;
+
 public interface MatrixUtilsInterface {
 
     int[][] generateIdentityMatrix(Integer dimension);
@@ -23,4 +25,8 @@ public interface MatrixUtilsInterface {
     int[] addVectors(int[] vectorOne, int[] vectorTwo);
 
     int[] multiplyMatrixWithCode(int [][] matrix, int[] vector);
+
+    int[] sendVectorThroughChanel(int[] vector, double probability);
+
+    int[] decodeVector(int[] encryptedVector, Map<String,Integer> syndromeMap, int[][] controlMatrix, int matrixColumnNumb, int matrixRowNumb);
 }

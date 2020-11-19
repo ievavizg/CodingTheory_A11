@@ -23,8 +23,15 @@ public class ChooseScenarioController {
     private Button pictureButton;
 
     @FXML
-    void pictureButtonOnAction(ActionEvent event) {
-
+    void pictureButtonOnAction(ActionEvent event) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pictureScenario.fxml"));
+        Parent root1 = (Parent) fxmlLoader.load();
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Paveikslėlio kodavimas");
+        stage.setScene(new Scene(root1));
+        stage.setResizable(false);
+        stage.show();
     }
 
     @FXML
