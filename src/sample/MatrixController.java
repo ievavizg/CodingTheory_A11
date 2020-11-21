@@ -190,6 +190,7 @@ public class MatrixController implements Initializable {
 
             if(!newText.isEmpty()){
                 vectorLength = Utils.tryParseToInteger(vectorLengthTextField.getText());
+                Utils.checkIfIntegerBiggerThanZero(vectorLength);
             }
             kNumberTextArea.setText(newText);
         });
@@ -198,6 +199,7 @@ public class MatrixController implements Initializable {
         kNumberTextArea.textProperty().addListener((obs, oldText, newText) -> {
             if(!newText.isEmpty()) {
                 matrixRowNumb = Utils.tryParseToInteger(kNumberTextArea.getText());
+                Utils.checkIfIntegerBiggerThanZero(matrixRowNumb);
             }
             vectorLengthTextField.setText(newText);
         });
@@ -206,6 +208,7 @@ public class MatrixController implements Initializable {
         nNumberTextArea.textProperty().addListener((obs, oldText, newText) -> {
             if(!newText.isEmpty()) {
                 matrixColumnNumb = Utils.tryParseToInteger(nNumberTextArea.getText());
+                Utils.checkIfIntegerBiggerThanZero(matrixColumnNumb);
             }
         });
 
@@ -213,6 +216,7 @@ public class MatrixController implements Initializable {
         probabilityNumberTextArea.textProperty().addListener((obs, oldText, newText) -> {
             if(!newText.isEmpty()) {
                 corruptionProbability = Utils.tryParseToDouble(probabilityNumberTextArea.getText());
+                Utils.checkIfDoubleBiggerOrEqualsZero(corruptionProbability);
             }
         });
 
@@ -287,4 +291,6 @@ public class MatrixController implements Initializable {
 
         return (!alert);
     }
+
+
 }

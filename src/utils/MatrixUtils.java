@@ -233,6 +233,7 @@ public class MatrixUtils implements MatrixUtilsInterface{
     public int[] decodeVector(int[] encryptedVector, Map<String, Integer> syndromeMap, int[][] controlMatrix, int matrixColumnNumb, int matrixRowNumb) {
         int[] r = encryptedVector;
         for (int i = 0; i < r.length; i++) {
+
             //randam vektoriaus sindroma
             int[] syndrome = multiplyMatrixWithCode(controlMatrix, r);
 
@@ -254,8 +255,9 @@ public class MatrixUtils implements MatrixUtilsInterface{
             }
         }
 
-        int[] vectorToReturn = new int[matrixColumnNumb-matrixRowNumb];
-        for (int j=0; j<matrixColumnNumb-matrixRowNumb; j++)
+        int vectorToReturnLength = matrixColumnNumb - (matrixColumnNumb-matrixRowNumb);
+        int[] vectorToReturn = new int[vectorToReturnLength];
+        for (int j=0; j<vectorToReturnLength; j++)
         {
             vectorToReturn[j] = r[j];
         }

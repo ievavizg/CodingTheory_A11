@@ -181,4 +181,26 @@ public class Utils {
 
         textArea.setText(vectorToDisplay.toString());
     }
+
+    public static boolean checkIfIntegerBiggerThanZero(int integer)
+    {
+        if(integer > 0)
+        {
+            return true;
+        } else {
+            createAlert("Netinkama reikšmė","Įvesta reikšmė turi būti didesnė už 0");
+            return false;
+        }
+    }
+
+    public static boolean checkIfDoubleBiggerOrEqualsZero(Double doubleNumb)
+    {
+        if(doubleNumb >= 0)
+        {
+            return true;
+        } else {
+            createAlert("Netinkama reikšmė","Įvesta reikšmė turi būti 0 arba daugiau");
+            return false;
+        }
+    }
 }
