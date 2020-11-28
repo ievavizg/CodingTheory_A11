@@ -40,7 +40,7 @@ public class MatrixController implements Initializable {
     private TextArea matrixTextArea;
 
     @FXML
-    private Button matrixButton;
+    private Button randomMatrixButton;
 
     @FXML
     private TextField nNumberTextArea;
@@ -73,7 +73,7 @@ public class MatrixController implements Initializable {
     private TextField vectorToDecodeTextField;
 
     @FXML
-    void generateRandomMatrixButtonOnAction(ActionEvent event) {
+    void randomMatrixButtonOnAction(ActionEvent event) {
         // 1. Check if all values are correct:
         //  1.1. k >= n
         //  1.2. vectorLength = k

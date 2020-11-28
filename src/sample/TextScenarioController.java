@@ -24,6 +24,7 @@ public class TextScenarioController implements Initializable {
     private List<String> binaryTextOfSizeKList;
     private List<int[]> encodedVectorsList;
     private boolean correctGeneratingMatrix;
+    private StringBuilder zerosAddedToVector;
 
     private int matrixRowNumb;
     private int matrixColumnNumb;
@@ -100,6 +101,7 @@ public class TextScenarioController implements Initializable {
         binaryTextToEncrypt = Utils.convertStringToBinary(textToEncrypt);
 
         //Save binaries of size k into the list
+        zerosAddedToVector = new StringBuilder();
         binaryTextOfSizeKList = new ArrayList<>();
         do{
             if(binaryTextToEncrypt.length()> matrixRowNumb){
@@ -108,6 +110,7 @@ public class TextScenarioController implements Initializable {
             } else if(binaryTextToEncrypt.length() < matrixRowNumb) {
                 do{
                     binaryTextToEncrypt += "0";
+                    zerosAddedToVector.append("0");
                 }while (!(binaryTextToEncrypt.length()== matrixRowNumb));
                 binaryTextOfSizeKList.add(binaryTextToEncrypt);
                 binaryTextToEncrypt = "";
@@ -149,7 +152,6 @@ public class TextScenarioController implements Initializable {
 
                 int[] decodedCorruptedVector = matrixUtils.decodeVector(encryptedVectorSent,syndromeMap,controlMatrix,matrixColumnNumb, matrixRowNumb);
                 decodedCorruptedStringBuilderInBinary.append(Utils.intArrayToString(decodedCorruptedVector));
-
             }
 
             String corruptedText = Utils.binaryToText(corruptedStringBuilderInBinary.toString());
@@ -207,7 +209,6 @@ public class TextScenarioController implements Initializable {
             }
         });
     }
-
 
     private boolean checkIfGeneratingMatrixIsCorrect(){
         boolean alert = false;

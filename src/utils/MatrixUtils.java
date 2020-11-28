@@ -215,7 +215,6 @@ public class MatrixUtils implements MatrixUtilsInterface{
     @Override
     public int[] sendVectorThroughChanel(int[] vector, double probability) {
         int[] encryptedVector = vector;
-        int min = 0, max = 1;
 
         for(int i=0; i<vector.length; i++)
         {
