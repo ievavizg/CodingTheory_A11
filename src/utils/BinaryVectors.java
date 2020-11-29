@@ -24,8 +24,7 @@ public class BinaryVectors {
     }
 
     // Function to generate all binary strings
-    public void generateAllBinaryStrings(int n,
-                                         int arr[], int i)
+    public void generateAllBinaryStrings(int n, int arr[], int i)
     {
         if (i == n)
         {
@@ -44,7 +43,7 @@ public class BinaryVectors {
 
     public Map<String,Integer> generateBinaryVectorsOfSizeN(int n)
     {
-        //vectorsList = new ArrayList<>();
+
         vectorWeightMap = new HashMap<String,Integer> ();
 
         int[] arr = new int[n];

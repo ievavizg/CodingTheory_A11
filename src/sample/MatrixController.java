@@ -73,21 +73,23 @@ public class MatrixController implements Initializable {
     private TextField vectorToDecodeTextField;
 
     @FXML
-    void randomMatrixButtonOnAction(ActionEvent event) {
+    void generateRandomMatrixButtonOnAction(ActionEvent event) {
         // 1. Check if all values are correct:
         //  1.1. k >= n
         //  1.2. vectorLength = k
         // 2. If k=n, then generate only unitary matrix, else generate generating matrix with random matrix
         // 3.
 
-        boolean alert = false;
+        boolean isAlert = false;
 
         if(matrixColumnNumb < matrixRowNumb)
         {
-            alert = true;
+            isAlert = true;
             Utils.createAlert("Netinkami parametrai", "Kodo ilgis negali būti mažesnis už dimensiją");
-        } else if(matrixRowNumb != unencryptedVector.length) {
-            alert = true;
+        }
+        //TODO: check if all values set
+        else if(matrixRowNumb != unencryptedVector.length) {
+            isAlert = true;
             Utils.createAlert("Netinkami parametrai", "Įvesto vektoriaus ilgis turi būti lygus dimensijai");
         } else {
             int[][] unitMa = matrixUtils.generateIdentityMatrix(matrixRowNumb);
@@ -99,7 +101,7 @@ public class MatrixController implements Initializable {
             }
         }
 
-        if (!alert)
+        if (!isAlert)
         {
             Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);
             generatingMatrixString = matrixTextArea.toString();
