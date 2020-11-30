@@ -17,8 +17,6 @@ import utils.MatrixUtilsInterface;
 import utils.SyndromeUtils;
 import utils.Utils;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 import java.net.URL;
@@ -46,139 +44,207 @@ public class PictureScenarioController implements Initializable {
     private final MatrixUtilsInterface matrixUtils = new MatrixUtils();
 
     private StringBuilder decodedStringBuilderInBinary;
+    private StringBuilder corruptedStringBuilderInBinary;
     private boolean correctGeneratingMatrix;
+    private WritableRaster raster;
+    private int imageType;
+    private boolean isCorrectGeneratingMatrix;
 
-        @FXML
-        private TextArea matrixTextArea;
+    @FXML
+    private TextArea matrixTextArea;
 
-        @FXML
-        private Button matrixButton;
+    @FXML
+    private Button matrixButton;
 
-        @FXML
-        private TextField kNumberTextArea;
+    @FXML
+    private TextField kNumberTextArea;
 
-        @FXML
-        private TextField nNumberTextArea;
+    @FXML
+    private TextField nNumberTextArea;
 
-        @FXML
-        private TextField probabilityNumberTextArea;
+    @FXML
+    private TextField probabilityNumberTextArea;
 
-        @FXML
-        private Button encodeVectorButton;
+    @FXML
+    private Button encodeVectorButton;
 
-        @FXML
-        private Button testBttn;
+    @FXML
+    private Button testBttn;
 
-        @FXML
-        private Button importPicture;
+    @FXML
+    private Button importPicture;
 
-        @FXML
-        private Pane picturePane;
+    @FXML
+    private Pane picturePane;
 
-        @FXML
-        private Pane picturePaneDecoded;
+    @FXML
+    private Pane picturePaneDecoded;
 
-        @FXML
-        private TextField vectorLengthTextField;
+    @FXML
+    private TextField vectorLengthTextField;
 
-        @FXML
-        private TextField pathToSaveNewPicture;
+    @FXML
+    private TextField pathToSaveNewPicture;
 
-        @FXML
-        private TextArea pictureBytes;
+    @FXML
+    private TextField pathToSaveCorruptedPicture;
 
-        @FXML
+
+    @FXML
         void encodeVectorButtonOnAction(ActionEvent event) throws IOException {
-            //TODO: sitas button veikia kaip issaugojimas generuojancios matricos!
+
+        isCorrectGeneratingMatrix = checkIfGeneratingMatrixIsCorrect();
+
+        boolean allFieldsCorrect = true;
+
+        if(pathToSaveCorruptedPicture.getText().isEmpty() || pathToSaveNewPicture.getText().isEmpty())
+        {
+            allFieldsCorrect = false;
+        }
+
+        if(isCorrectGeneratingMatrix && allFieldsCorrect) {
 
             //Vektoriaus uzkodavimas, tai generuojancios matricos ir vektoriaus sandauga.
 
             String binaryTextToEncrypt = fileBytesStringBuilder.toString();
             encodedVectorStringBuilder = new StringBuilder();
-            do{
-                if(binaryTextToEncrypt.length()>matrixRowNumb){
-
+            do {
+                if (binaryTextToEncrypt.length() > matrixRowNumb) {
                     binaryVectorStringEncode(binaryTextToEncrypt.substring(0, matrixRowNumb));
-
                     binaryTextToEncrypt = binaryTextToEncrypt.substring(matrixRowNumb, binaryTextToEncrypt.length());
-                } else if(binaryTextToEncrypt.length() < matrixRowNumb) {
-                    do{
+                } else if (binaryTextToEncrypt.length() < matrixRowNumb) {
+                    do {
                         binaryTextToEncrypt += "0";
-                    }while (!(binaryTextToEncrypt.length()==matrixRowNumb));
+                    } while (!(binaryTextToEncrypt.length() == matrixRowNumb));
                     binaryVectorStringEncode(binaryTextToEncrypt);
                     binaryTextToEncrypt = "";
                 } else {
                     binaryVectorStringEncode(binaryTextToEncrypt);
                     binaryTextToEncrypt = "";
                 }
-            }while (!binaryTextToEncrypt.isEmpty());
+            } while (!binaryTextToEncrypt.isEmpty());
 
 
             String encodedVectorString = encodedVectorStringBuilder.toString();
 
+            //TODO: open encoded picture
+
             int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
-            SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
-            Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
+            SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb, matrixColumnNumb, controlMatrix);
+            Map<String, Integer> syndromeMap = syndromeUtils.getSyndromeMap();
 
             //<------->
             //DECODING
 
             decodedStringBuilderInBinary = new StringBuilder();
+            corruptedStringBuilderInBinary = new StringBuilder();
 
             zerosAddedToVector = new StringBuilder();
 
-            do{
-                if(encodedVectorString.length()>matrixRowNumb){
+            do {
+                if (encodedVectorString.length() > matrixColumnNumb) {
 
-                    int[] vectorToDecode =  Utils.stringToIntegerArray(encodedVectorString.substring(0, matrixRowNumb));
+                    int[] vectorToDecode = Utils.stringToIntegerArray(encodedVectorString.substring(0, matrixColumnNumb));
 
-                    int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(vectorToDecode,corruptionProbability);
-                    int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSent,syndromeMap,controlMatrix,matrixColumnNumb,matrixRowNumb);
+                    int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(vectorToDecode, corruptionProbability);
+
+                    int[] corruptedVector = corruptedVectorBackToGivenVectorSize(encryptedVectorSent, matrixColumnNumb, matrixRowNumb);
+                    corruptedStringBuilderInBinary.append(Utils.intArrayToString(corruptedVector));
+
+                    int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSent, syndromeMap, controlMatrix, matrixColumnNumb, matrixRowNumb);
                     decodedStringBuilderInBinary.append(Utils.intArrayToString(decodedVector));
 
-                    encodedVectorString = encodedVectorString.substring(matrixRowNumb, encodedVectorString.length());
-                } else if(encodedVectorString.length() < matrixRowNumb) {
-                    do{
+                    encodedVectorString = encodedVectorString.substring(matrixColumnNumb, encodedVectorString.length());
+                } else if (encodedVectorString.length() < matrixColumnNumb) {
+                    do {
                         encodedVectorString += "0";
                         zerosAddedToVector.append("0");
 
-                    }while (!(encodedVectorString.length()==matrixRowNumb));
+                    } while (!(encodedVectorString.length() == matrixColumnNumb));
 
-                    int[] vectorToDecode =  Utils.stringToIntegerArray(encodedVectorString);
+                    int[] vectorToDecode = Utils.stringToIntegerArray(encodedVectorString);
+                    int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(vectorToDecode, corruptionProbability);
 
-                    int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(vectorToDecode,corruptionProbability);
-                    int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSent,syndromeMap,controlMatrix,matrixColumnNumb,matrixRowNumb);
+                    int[] corruptedVector = corruptedVectorBackToGivenVectorSize(encryptedVectorSent, matrixColumnNumb, matrixRowNumb);
+                    corruptedStringBuilderInBinary.append(Utils.intArrayToString(corruptedVector));
+
+                    int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSent, syndromeMap, controlMatrix, matrixColumnNumb, matrixRowNumb);
                     decodedStringBuilderInBinary.append(Utils.intArrayToString(decodedVector));
 
                     encodedVectorString = "";
                 } else {
-                    int[] vectorToDecode =  Utils.stringToIntegerArray(encodedVectorString);
+                    int[] vectorToDecode = Utils.stringToIntegerArray(encodedVectorString);
 
-                    int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(vectorToDecode,corruptionProbability);
-                    int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSent,syndromeMap,controlMatrix,matrixColumnNumb,matrixRowNumb);
+                    int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(vectorToDecode, corruptionProbability);
+                    int[] corruptedVector = corruptedVectorBackToGivenVectorSize(encryptedVectorSent, matrixColumnNumb, matrixRowNumb);
+                    corruptedStringBuilderInBinary.append(Utils.intArrayToString(corruptedVector));
+
+                    int[] decodedVector = matrixUtils.decodeVector(encryptedVectorSent, syndromeMap, controlMatrix, matrixColumnNumb, matrixRowNumb);
                     decodedStringBuilderInBinary.append(Utils.intArrayToString(decodedVector));
 
                     encodedVectorString = "";
                 }
-            }while (!encodedVectorString.isEmpty());
+            } while (!encodedVectorString.isEmpty());
 
             //<------->
+            //SAVING ENCRYPTED IMAGE
+
+            List<Integer> listEncrypted = new ArrayList<>();
+
+            String encryptedVector = corruptedStringBuilderInBinary.toString().substring(0, corruptedStringBuilderInBinary.length() - zerosAddedToVector.length());
+
+            for (String str : encryptedVector.split("(?<=\\G.{8})"))
+                listEncrypted.add(Integer.parseInt(str, 2));
+
+            byte[] dataEncrypted = new byte[listEncrypted.size()];
+
+            int index = 0;
+            Iterator<Integer> iterator = listEncrypted.iterator();
+
+            while (iterator.hasNext()) {
+                Integer i = iterator.next();
+                dataEncrypted[index] = i.byteValue();
+                index++;
+            }
+
+            byte[] destinationEncrypted = new byte[imageImportantBytes.length + listEncrypted.size()];
+            System.arraycopy(imageImportantBytes, 0, destinationEncrypted, 0, imageImportantBytes.length);
+            System.arraycopy(dataEncrypted, 0, destinationEncrypted, imageImportantBytes.length, dataEncrypted.length);
+
+            //"/Users/ievaviz/Desktop/outputCorrupted.bmp"
+            File fileOutputEncrypted = new File(pathToSaveCorruptedPicture.getText());
+
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(fileOutputEncrypted))) {
+                out.write(destinationEncrypted);
+            }
+
+
+            Stage primaryStageEncrypted = new Stage();
+            primaryStageEncrypted.setTitle("Iškraiptytas paveikslėlis");
+            ImageView imageViewEncrypted = new ImageView(fileOutputEncrypted.toURI().toURL().toExternalForm());
+            HBox hboxEncrypted = new HBox(imageViewEncrypted);
+
+            Scene sceneEncrypted = new Scene(hboxEncrypted, 200, 100);
+            primaryStageEncrypted.setScene(sceneEncrypted);
+            primaryStageEncrypted.show();
+
+            //<------->
+            //SAVING DECODED IMAGE
 
             List<Integer> list = new ArrayList<>();
 
-            String decodedVector = decodedStringBuilderInBinary.toString().substring(0,decodedStringBuilderInBinary.length()-zerosAddedToVector.length());
+            String decodedVector = decodedStringBuilderInBinary.toString().substring(0, decodedStringBuilderInBinary.length() - zerosAddedToVector.length());
 
-            for(String str : decodedVector.split("(?<=\\G.{8})"))
+            for (String str : decodedVector.split("(?<=\\G.{8})"))
                 list.add(Integer.parseInt(str, 2));
 
             byte[] data = new byte[list.size()];
 
-            int index = 0;
-            Iterator<Integer> iterator = list.iterator();
+            index = 0;
+            Iterator<Integer> iteratorList = list.iterator();
 
-            while(iterator.hasNext())
-            {
-                Integer i = iterator.next();
+            while (iteratorList.hasNext()) {
+                Integer i = iteratorList.next();
                 data[index] = i.byteValue();
                 index++;
             }
@@ -187,14 +253,52 @@ public class PictureScenarioController implements Initializable {
             System.arraycopy(imageImportantBytes, 0, destination, 0, imageImportantBytes.length);
             System.arraycopy(data, 0, destination, imageImportantBytes.length, data.length);
 
-            System.out.println(Arrays.toString(destination));
+            File fileOutput = new File(pathToSaveNewPicture.getText());
 
             //"/Users/ievaviz/Desktop/output.bmp"
-            if(!pathToSaveNewPicture.getText().isEmpty()){
-                try (OutputStream out = new BufferedOutputStream(new FileOutputStream(pathToSaveNewPicture.getText()))) {
+            //One way to save image
+            if (!pathToSaveNewPicture.getText().isEmpty()) {
+                try (OutputStream out = new BufferedOutputStream(new FileOutputStream(fileOutput))) {
                     out.write(destination);
                 }
             }
+
+            //Another way
+            //>>
+            /*
+            ByteArrayInputStream bis = new ByteArrayInputStream(destination);
+            BufferedImage bImage2 = ImageIO.read(bis);
+            ImageIO.write(bImage2, "jpg", fileOutput);
+            System.out.println("image created");
+
+             */
+            //<<
+
+            //Third way
+            //>>
+            /*
+            ByteArrayInputStream bis = new ByteArrayInputStream(destination);
+            BufferedImage image3 = new BufferedImage(raster.getWidth(), raster.getHeight(), imageType);
+            image3 = ImageIO.read(bis);
+            ImageIO.write(image3, "jpg", fileOutput);
+
+             */
+            //<<
+
+            Stage primaryStage = new Stage();
+
+            primaryStage.setTitle("Paveikslėlis po dekodavimo");
+
+            ImageView imageView = new ImageView(fileOutput.toURI().toURL().toExternalForm());
+
+            HBox hbox = new HBox(imageView);
+
+            Scene scene = new Scene(hbox, 200, 100);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+
+        }
+
         }
 
         @FXML
@@ -225,28 +329,44 @@ public class PictureScenarioController implements Initializable {
                 byte[] fileBytes = Files.readAllBytes(file.toPath());
 
                 //Get bytes from picture using BufferedImage
+                //>>
                 /*
                 BufferedImage bufferedImage = ImageIO.read(file);
-                int width = bufferedImage.getWidth();
-                int height = bufferedImage.getHeight();
+                //int width = bufferedImage.getWidth();
+                //int height = bufferedImage.getHeight();
                 ColorModel cm = bufferedImage.getColorModel();
+                imageType = bufferedImage.getType();
 
-                WritableRaster raster = bufferedImage.getRaster();
+                raster = bufferedImage.getRaster();
                 DataBufferByte data1 = (DataBufferByte) raster.getDataBuffer();
 
                 byte[] fileBytes = data1.getData();
+
                  */
 
-                imageImportantBytes = Arrays.copyOfRange(fileBytes, 0, 54*8);
+                //<<
 
-                byte[] fileBytesToEncode = Arrays.copyOfRange(fileBytes,54*8,fileBytes.length);
+                //Another way
+                //>>
+
+                /*
+                BufferedImage originalImage=ImageIO.read(file);
+                ByteArrayOutputStream baos=new ByteArrayOutputStream();
+                ImageIO.write(originalImage, "jpg", baos );
+                byte[] fileBytes=baos.toByteArray();
+
+                 */
+
+                //<<
+
+                imageImportantBytes = Arrays.copyOfRange(fileBytes, 0, 54);
+
+                byte[] fileBytesToEncode = Arrays.copyOfRange(fileBytes,54,fileBytes.length);
 
                 fileBytesStringBuilder = new StringBuilder();
                 for(byte b : fileBytesToEncode) {
                     fileBytesStringBuilder.append(String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0'));
                 }
-
-                pictureBytes.setText(Arrays.toString(fileBytes));
             }
         }
 
@@ -295,7 +415,7 @@ public class PictureScenarioController implements Initializable {
         int[] vectorAsArray = Utils.stringToIntegerArray(vector);
         encryptedVector = matrixUtils.multiplyCodeWithMatrix(vectorAsArray, generatingMatrix);
         //encodedVectorsList.add(encryptedVector);
-        encodedVectorStringBuilder.append(Utils.intArrayToString(vectorAsArray));
+        encodedVectorStringBuilder.append(Utils.intArrayToString(encryptedVector));
     }
 
     public static boolean arrayToBMP(byte[] pixelData, int width, int height, File outputFile) throws IOException {
@@ -343,4 +463,62 @@ public class PictureScenarioController implements Initializable {
         });
     }
 
+    public int[] corruptedVectorBackToGivenVectorSize(int[] encryptedVector, int matrixColumnNumb, int matrixRowNumb) {
+        int vectorToReturnLength = matrixColumnNumb - (matrixColumnNumb-matrixRowNumb);
+        int[] vectorToReturn = new int[vectorToReturnLength];
+        for (int j=0; j<vectorToReturnLength; j++)
+        {
+            vectorToReturn[j] = encryptedVector[j];
+        }
+        return vectorToReturn;
+    }
+
+    private boolean checkIfGeneratingMatrixIsCorrect(){
+        boolean alert = false;
+
+        if(matrixTextArea.getText().isEmpty())
+        {
+            Utils.createAlert("Neužpildyta generuojanti matrica",
+                    "Prašome užpildyti generuojančios matricos lauką (gali būti be standartinio pavidalo matricos)");
+            alert = true;
+        } else if(!alert){
+            int[][] scannedMatrix = Utils.textAreaToTwoDimensionalArray(matrixTextArea);
+
+            if(scannedMatrix!=null){
+
+                if (scannedMatrix.length != matrixRowNumb) {
+                    Utils.createAlert("Neteisingai įvesta generuojanti matrica",
+                            "Prašome užpildyti generuojančios matricos lauką tinkamai, eilučių skaičius turi būti lygus dimensijai");
+                    alert = true;
+                } else {
+                    int columnLength = scannedMatrix[0].length;
+                    for (int i = 0; i < scannedMatrix.length; i++) {
+                        if (columnLength != scannedMatrix[i].length) {
+                            Utils.createAlert("Neteisingai įvesta generuojanti matrica",
+                                    "Nevienodi stulpelių ilgiai, prašome pasitikslinti įvestą / pakeistą generuojančią matricą");
+                            alert = true;
+                        }
+                    }
+                    if (!alert) {
+                        if (columnLength == matrixColumnNumb) {
+                            generatingMatrix = scannedMatrix;
+
+                        } else if (columnLength == matrixColumnNumb - matrixRowNumb) {
+                            int[][] unitMa = matrixUtils.generateIdentityMatrix(matrixRowNumb);
+                            generatingMatrix = matrixUtils.generateGeneratingMatrix(unitMa, scannedMatrix);
+                            Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);
+                        } else {
+                            Utils.createAlert("Neteisingai įvesta generuojanti matrica",
+                                    "Prašome užpildyti generuojančios matricos lauką tinkamai, tai yra I | A matricos arba tik A matrica");
+                            alert = true;
+                        }
+                    }
+                }
+            } else {
+                alert = true;
+            }
+        }
+
+        return (!alert);
+    }
 }

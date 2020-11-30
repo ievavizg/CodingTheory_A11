@@ -73,11 +73,11 @@ public class TextScenarioController implements Initializable {
         // 2. If k=n, then generate only unitary matrix, else generate generating matrix with random matrix
         // 3.
 
-        boolean alert = false;
+        boolean isAlert = false;
 
         if(matrixColumnNumb < matrixRowNumb)
         {
-            alert = true;
+            isAlert = true;
             Utils.createAlert("Netinkami parametrai", "Kodo ilgis negali būti mažesnis už dimensiją");
         } else {
 
@@ -154,10 +154,19 @@ public class TextScenarioController implements Initializable {
                 decodedCorruptedStringBuilderInBinary.append(Utils.intArrayToString(decodedCorruptedVector));
             }
 
-            String corruptedText = Utils.binaryToText(corruptedStringBuilderInBinary.toString());
-            corruptedTextArea.setText(corruptedText);
+            String corruptedText = "";
+            String decodedCorrupted = "";
 
-            String decodedCorruptedText = Utils.binaryToText(decodedCorruptedStringBuilderInBinary.toString());
+            if (zerosAddedToVector.length() != 0)
+            {
+                corruptedText = corruptedStringBuilderInBinary.toString().substring(0,corruptedStringBuilderInBinary.length()-zerosAddedToVector.length());
+                decodedCorrupted =  decodedCorruptedStringBuilderInBinary.toString().substring(0,decodedCorruptedStringBuilderInBinary.length()-zerosAddedToVector.length());
+            }
+
+            String corruptedTextinBinary = Utils.binaryToText(corruptedText);
+            corruptedTextArea.setText(corruptedTextinBinary);
+
+            String decodedCorruptedText = Utils.binaryToText(decodedCorrupted);
             decodedCorruptedTextArea.setText(decodedCorruptedText);
 
         }

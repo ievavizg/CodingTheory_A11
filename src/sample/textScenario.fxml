@@ -23,8 +23,8 @@
       <Text layoutX="22.0" layoutY="230.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Generuojanti matrica:" />
       <TextArea fx:id="corruptedTextArea" editable="false" layoutX="277.0" layoutY="245.0" prefHeight="87.0" prefWidth="288.0" />
       <TextArea fx:id="decodedCorruptedTextArea" editable="false" layoutX="277.0" layoutY="377.0" prefHeight="87.0" prefWidth="288.0" />
-      <Text layoutX="33.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Būsimo vektoriaus ilgis:" />
-      <TextField fx:id="vectorLengthTextField" layoutX="173.0" layoutY="30.0" prefHeight="27.0" prefWidth="73.0" promptText="Pvz. 2" />
+      <Text layoutX="33.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Būsimo vektoriaus ilgis:" visible="false" />
+      <TextField fx:id="vectorLengthTextField" layoutX="173.0" layoutY="30.0" prefHeight="27.0" prefWidth="73.0" promptText="Pvz. 2" visible="false" />
       <Text layoutX="278.0" layoutY="372.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Iškraiptytas ir dekoduotas tekstas:" wrappingWidth="224.0247293829358" />
    </children>
 </AnchorPane>

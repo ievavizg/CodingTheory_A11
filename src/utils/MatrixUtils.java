@@ -129,11 +129,10 @@ public class MatrixUtils implements MatrixUtilsInterface{
             return hMatrix;
         } else
         {
-            //TODO - ka daryti kai k = n?
+            hMatrix = generateIdentityMatrix(matrix.length);
+            return hMatrix;
         }
         //reikia issiimti A matrica
-
-        return new int[0][];
     }
 
     @Override

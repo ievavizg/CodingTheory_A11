@@ -10,26 +10,26 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="430.0" prefWidth="640.0" style="-fx-background-color: #e9d7f7#e9d7f7;" xmlns="http://javafx.com/javafx/9.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.PictureScenarioController">
    <children>
       <TextArea fx:id="matrixTextArea" layoutX="30.0" layoutY="215.0" prefHeight="154.0" prefWidth="192.0" promptText="Matricos elementai turi būti atskirti tarpais, nauja matricos eilutė pradedama iš naujos eilutės" />
-      <Button fx:id="randomMatrixButton" layoutX="266.0" layoutY="142.0" mnemonicParsing="false" onAction="#randomMatrixButtonOnAction" text="Generuoti atsitiktinę matricą" />
+      <Button fx:id="randomMatrixButton" layoutX="261.0" layoutY="186.0" mnemonicParsing="false" onAction="#randomMatrixButtonOnAction" text="Generuoti atsitiktinę matricą" />
       <TextField fx:id="kNumberTextArea" layoutX="161.0" layoutY="62.0" prefHeight="27.0" prefWidth="73.0" promptText="Pvz. 2" />
       <Text layoutX="75.0" layoutY="80.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dimensija (k):" />
       <Text layoutX="75.0" layoutY="118.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kodo ilgis (n):" />
       <TextField fx:id="nNumberTextArea" layoutX="161.0" layoutY="100.0" prefHeight="27.0" prefWidth="73.0" promptText="Pvz. 3" />
-      <Text layoutX="261.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kelias išsaugoti naują paveikslėlį:" />
+      <Text layoutX="261.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kelias išsaugoti dekoduotą paveikslėlį:" />
       <Text layoutX="39.0" layoutY="160.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Iškraipymo tikimybė:" />
       <TextField fx:id="probabilityNumberTextArea" layoutX="161.0" layoutY="142.0" prefHeight="27.0" prefWidth="73.0" promptText="Pvz. 0.05" />
-      <Button fx:id="encodeVectorButton" layoutX="134.0" layoutY="381.0" mnemonicParsing="false" onAction="#encodeVectorButtonOnAction" text="Užkoduoti ir dekoduoti paveikslėlį" />
+      <Button fx:id="encodeVectorButton" layoutX="204.0" layoutY="381.0" mnemonicParsing="false" onAction="#encodeVectorButtonOnAction" text="Užkoduoti ir dekoduoti paveikslėlį" />
       <Text layoutX="17.0" layoutY="204.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Generuojanti matrica:" />
-      <Button fx:id="importPicture" layoutX="24.0" layoutY="381.0" mnemonicParsing="false" onAction="#importPictureButtonOnAction" text="Įkelti paveikslėlį" />
-      <TextField fx:id="pathToSaveNewPicture" layoutX="448.0" layoutY="23.0" prefHeight="27.0" prefWidth="169.0" />
-      <Text layoutX="21.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Būsimo vektoriaus ilgis:" />
-      <TextField fx:id="vectorLengthTextField" layoutX="161.0" layoutY="23.0" prefHeight="27.0" prefWidth="73.0" promptText="Pvz. 2" />
+      <Button fx:id="importPicture" layoutX="75.0" layoutY="381.0" mnemonicParsing="false" onAction="#importPictureButtonOnAction" text="Įkelti paveikslėlį" />
+      <TextField fx:id="pathToSaveNewPicture" layoutX="261.0" layoutY="49.0" prefHeight="27.0" prefWidth="363.0" promptText="/Users/useris/Desktop/DecodedPicture.bmp" />
+      <Text layoutX="21.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Būsimo vektoriaus ilgis:" visible="false" />
+      <TextField fx:id="vectorLengthTextField" layoutX="161.0" layoutY="23.0" prefHeight="27.0" prefWidth="73.0" promptText="Pvz. 2" visible="false" />
       <Pane fx:id="picturePane" layoutX="348.0" layoutY="381.0" prefHeight="27.0" prefWidth="200.0">
          <children>
           <AnchorPane layoutX="3.0" layoutY="-16.0" minHeight="0.0" minWidth="0.0" prefHeight="60.0" prefWidth="200.0" />
          </children>
       </Pane>
-      <Text layoutX="234.0" layoutY="204.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Nuskaityti paveikslėlio baitai:" />
-      <TextArea fx:id="pictureBytes" layoutX="234.0" layoutY="215.0" prefHeight="154.0" prefWidth="103.0" />
+      <Text layoutX="261.0" layoutY="118.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kelias išsaugoti iškraipytą paveikslėlį:" />
+      <TextField fx:id="pathToSaveCorruptedPicture" layoutX="261.0" layoutY="129.0" prefHeight="27.0" prefWidth="363.0" promptText="/Users/useris/Desktop/CorruptedPicture.bmp" />
    </children>
 </AnchorPane>

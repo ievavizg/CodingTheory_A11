@@ -1,7 +1,5 @@
 package utils;
 
-import javafx.scene.control.TextArea;
-
 import java.util.Map;
 
 public interface MatrixUtilsInterface {
