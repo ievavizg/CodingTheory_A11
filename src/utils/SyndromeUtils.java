@@ -27,6 +27,8 @@ public class SyndromeUtils {
 
     public Map<String, Integer> getSyndromeMap()
     {
+        //Function to create map of syndromes, when values are set in the class
+
         Map<String,Integer> syndromeMap = new HashMap<>();
 
         do

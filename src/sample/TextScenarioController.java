@@ -71,7 +71,7 @@ public class TextScenarioController implements Initializable {
         //  1.1. k >= n
         //  1.2. vectorLength = k
         // 2. If k=n, then generate only unitary matrix, else generate generating matrix with random matrix
-        // 3.
+        // 3. Generate random matrix by joining unitary and random matrix.
 
         boolean isAlert = false;
 
@@ -93,11 +93,10 @@ public class TextScenarioController implements Initializable {
     void encodeVectorButtonOnAction(ActionEvent event) {
 
         // 1. Save text to binaries
-        // 2.
-
+        // 2. Break down binaries into smaller vectors
+        // 3. Encode send through channel and decode vectors
 
         //Convert given text to binaries
-        //Convert each char to binary?
         binaryTextToEncrypt = Utils.convertStringToBinary(textToEncrypt);
 
         //Save binaries of size k into the list
@@ -123,19 +122,19 @@ public class TextScenarioController implements Initializable {
 
         correctGeneratingMatrix = checkIfGeneratingMatrixIsCorrect();
 
+        //Encode and decode vectors
         if(correctGeneratingMatrix) {
-
-            //Vektoriaus uzkodavimas, tai generuojancios matricos ir vektoriaus sandauga.
 
             encodedVectorsList = new ArrayList<>();
 
+            //Encode vectors by multiplying each with generating matrix
             for (String vector : binaryTextOfSizeKList) {
-                //TODO: maybe save instantly as int[] array?
                 int[] vectorAsArray = Utils.stringToIntegerArray(vector);
                 encryptedVector = matrixUtils.multiplyCodeWithMatrix(vectorAsArray, generatingMatrix);
                 encodedVectorsList.add(encryptedVector);
             }
 
+            //Create control matrix and syndromes
             int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
             SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb,matrixColumnNumb,controlMatrix);
             Map<String,Integer> syndromeMap = syndromeUtils.getSyndromeMap();
@@ -143,6 +142,7 @@ public class TextScenarioController implements Initializable {
             StringBuilder corruptedStringBuilderInBinary = new StringBuilder();
             StringBuilder decodedCorruptedStringBuilderInBinary = new StringBuilder();
 
+            //Loop through encoded vectors, send each through channel, save it and decode
             for (int[] vectorToDecode:encodedVectorsList) {
 
                 int[] encryptedVectorSent = matrixUtils.sendVectorThroughChanel(vectorToDecode,corruptionProbability);
@@ -163,6 +163,7 @@ public class TextScenarioController implements Initializable {
                 decodedCorrupted =  decodedCorruptedStringBuilderInBinary.toString().substring(0,decodedCorruptedStringBuilderInBinary.length()-zerosAddedToVector.length());
             }
 
+            //Convert binaries to text and display
             String corruptedTextinBinary = Utils.binaryToText(corruptedText);
             corruptedTextArea.setText(corruptedTextinBinary);
 
@@ -220,8 +221,10 @@ public class TextScenarioController implements Initializable {
     }
 
     private boolean checkIfGeneratingMatrixIsCorrect(){
+
         boolean alert = false;
 
+        //Check if generating matrix are is empty
         if(matrixTextArea.getText().isEmpty())
         {
             Utils.createAlert("Neužpildyta generuojanti matrica",
@@ -232,11 +235,13 @@ public class TextScenarioController implements Initializable {
 
             if(scannedMatrix!=null){
 
+                //Check if entered generating matrix rows match entered parameters
                 if (scannedMatrix.length != matrixRowNumb) {
                     Utils.createAlert("Neteisingai įvesta generuojanti matrica",
                             "Prašome užpildyti generuojančios matricos lauką tinkamai, eilučių skaičius turi būti lygus dimensijai");
                     alert = true;
                 } else {
+                    //Check if entered generating matrix columns match entered parameters
                     int columnLength = scannedMatrix[0].length;
                     for (int i = 0; i < scannedMatrix.length; i++) {
                         if (columnLength != scannedMatrix[i].length) {
@@ -246,14 +251,15 @@ public class TextScenarioController implements Initializable {
                         }
                     }
                     if (!alert) {
+                        //If entered generating matrix rows and columns match entered parameters -> full matrix was entered
                         if (columnLength == matrixColumnNumb) {
                             generatingMatrix = scannedMatrix;
-
-                        } else if (columnLength == matrixColumnNumb - matrixRowNumb) {
+                        }
+                        //If entered generating matrix rows match entered parameters and columns are entered columns - rows -> A part of matrix was entered
+                        else if (columnLength == matrixColumnNumb - matrixRowNumb) {
                             int[][] unitMa = matrixUtils.generateIdentityMatrix(matrixRowNumb);
                             generatingMatrix = matrixUtils.generateGeneratingMatrix(unitMa, scannedMatrix);
                             Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);
-                            generatingMatrixString = matrixTextArea.toString();
                         } else {
                             Utils.createAlert("Neteisingai įvesta generuojanti matrica",
                                     "Prašome užpildyti generuojančios matricos lauką tinkamai, tai yra I | A matricos arba tik A matrica");
@@ -269,8 +275,11 @@ public class TextScenarioController implements Initializable {
         return (!alert);
     }
 
-
     public int[] corruptedVectorBackToGivenVectorSize(int[] encryptedVector, int matrixColumnNumb, int matrixRowNumb) {
+        //Function which is intended to convert corrupted vector of size n, to size k,
+        //  so it would be possible to create corrupted image
+        //Function takes vector of size k, k and n numbers and returns vector of size n
+
         int vectorToReturnLength = matrixColumnNumb - (matrixColumnNumb-matrixRowNumb);
         int[] vectorToReturn = new int[vectorToReturnLength];
         for (int j=0; j<vectorToReturnLength; j++)

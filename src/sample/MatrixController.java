@@ -75,7 +75,7 @@ public class MatrixController implements Initializable {
         //  1.1. k >= n
         //  1.2. vectorLength = k
         // 2. If k=n, then generate only unitary matrix, else generate generating matrix with random matrix
-        // 3.
+        // 3. Generate random matrix by joining unitary and random matrix.
 
         boolean isAlert = false;
 
@@ -135,6 +135,11 @@ public class MatrixController implements Initializable {
     }
 
     public void sendVectorThroughChanel() {
+
+        //1. While looping through vector generate random number
+        //      and check if it is less than corruption probability
+        //      if yes -> change bit, else leave bit
+
         encryptedVectorSentThroughChannel = encryptedVector;
         int j = 0;
         corruptedValues = new ArrayList<>();
@@ -158,8 +163,9 @@ public class MatrixController implements Initializable {
 
 
         //1. Check if vector from chanel is correct
-        //2. Check if generating matrix wasn't changed!
-        //3.
+        //2. Check if generating matrix was not changed!
+        //3. Generate Syndrome Map
+        //4. Decode vector
 
 
         if(!correctGeneratingMatrix){
@@ -242,8 +248,10 @@ public class MatrixController implements Initializable {
     }
 
     private boolean checkIfGeneratingMatrixIsCorrect(){
+
         boolean alert = false;
 
+        //Check if generating matrix are is empty
         if(matrixTextArea.getText().isEmpty())
         {
             Utils.createAlert("Neužpildyta generuojanti matrica",
@@ -254,11 +262,13 @@ public class MatrixController implements Initializable {
 
             if(scannedMatrix!=null){
 
+                //Check if entered generating matrix rows match entered parameters
                 if (scannedMatrix.length != matrixRowNumb) {
                     Utils.createAlert("Neteisingai įvesta generuojanti matrica",
                             "Prašome užpildyti generuojančios matricos lauką tinkamai, eilučių skaičius turi būti lygus dimensijai");
                     alert = true;
                 } else {
+                    //Check if entered generating matrix columns match entered parameters
                     int columnLength = scannedMatrix[0].length;
                     for (int i = 0; i < scannedMatrix.length; i++) {
                         if (columnLength != scannedMatrix[i].length) {
@@ -268,10 +278,12 @@ public class MatrixController implements Initializable {
                         }
                     }
                     if (!alert) {
+                        //If entered generating matrix rows and columns match entered parameters -> full matrix was entered
                         if (columnLength == matrixColumnNumb) {
                             generatingMatrix = scannedMatrix;
-
-                        } else if (columnLength == matrixColumnNumb - matrixRowNumb) {
+                        }
+                        //If entered generating matrix rows match entered parameters and columns are entered columns - rows -> A part of matrix was entered
+                        else if (columnLength == matrixColumnNumb - matrixRowNumb) {
                             int[][] unitMa = matrixUtils.generateIdentityMatrix(matrixRowNumb);
                             generatingMatrix = matrixUtils.generateGeneratingMatrix(unitMa, scannedMatrix);
                             Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);
@@ -290,6 +302,4 @@ public class MatrixController implements Initializable {
 
         return (!alert);
     }
-
-
 }

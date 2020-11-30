@@ -4,11 +4,9 @@ import java.util.*;
 
 public class BinaryVectors {
 
-    List<String> vectorsList;
-
     Map<String,Integer> vectorWeightMap;
 
-    // Function to save vectors
+    // Function to save vectors, find out its weight, save also
     public void saveInTheList(int arr[], int n)
     {
         int weight = 0;
@@ -23,7 +21,7 @@ public class BinaryVectors {
         vectorWeightMap.put(Arrays.toString(arr).replaceAll("\\[|\\]|,|\\s", ""),weight);
     }
 
-    // Function to generate all binary strings
+    // Function to generate all binary strings of size n
     public void generateAllBinaryStrings(int n, int arr[], int i)
     {
         if (i == n)
@@ -43,6 +41,7 @@ public class BinaryVectors {
 
     public Map<String,Integer> generateBinaryVectorsOfSizeN(int n)
     {
+        //Main function that starts recursion
 
         vectorWeightMap = new HashMap<String,Integer> ();
 

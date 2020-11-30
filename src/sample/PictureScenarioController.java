@@ -93,6 +93,12 @@ public class PictureScenarioController implements Initializable {
     @FXML
         void encodeVectorButtonOnAction(ActionEvent event) throws IOException {
 
+        //1. Break picture binary bytes into small vectors (size defined in parameter)
+        //      then encrypt them by multiplying with generating matrix
+        //2. Decode encrypted vectors
+        //3. Save decrypted and sent through channel binary vectors into bytes array
+        //      then convert to images and save into paths provided and open them up.
+
         isCorrectGeneratingMatrix = checkIfGeneratingMatrixIsCorrect();
 
         boolean allFieldsCorrect = true;
@@ -103,9 +109,6 @@ public class PictureScenarioController implements Initializable {
         }
 
         if(isCorrectGeneratingMatrix && allFieldsCorrect) {
-
-            //Vektoriaus uzkodavimas, tai generuojancios matricos ir vektoriaus sandauga.
-
             String binaryTextToEncrypt = fileBytesStringBuilder.toString();
             encodedVectorStringBuilder = new StringBuilder();
             do {
@@ -126,8 +129,6 @@ public class PictureScenarioController implements Initializable {
 
 
             String encodedVectorString = encodedVectorStringBuilder.toString();
-
-            //TODO: open encoded picture
 
             int[][] controlMatrix = matrixUtils.generateControlMatrix(generatingMatrix);
             SyndromeUtils syndromeUtils = new SyndromeUtils(matrixRowNumb, matrixColumnNumb, controlMatrix);
@@ -304,7 +305,7 @@ public class PictureScenarioController implements Initializable {
         @FXML
         void importPictureButtonOnAction(ActionEvent event) throws IOException {
             //1. Open file selector to allow user select a picture
-            //2.
+            //2. Read photo bytes then convert them to binary
 
             picturePane.getChildren().clear();
 
@@ -376,7 +377,7 @@ public class PictureScenarioController implements Initializable {
             //  1.1. k >= n
             //  1.2. vectorLength = k
             // 2. If k=n, then generate only unitary matrix, else generate generating matrix with random matrix
-            // 3.
+            // 3. Generate random matrix by joining unitary and random matrix.
 
             boolean alert = false;
 
@@ -404,24 +405,12 @@ public class PictureScenarioController implements Initializable {
             }
         }
 
-        @FXML
-        void testBttnOnAction(ActionEvent event) throws IOException {
-
-          //  byte[] data = Base64.getDecoder().dec;
-        }
-
     public void binaryVectorStringEncode(String vector){
-        //TODO: maybe save instantly as int[] array?
+        //Function which takes vector as String, converts it to integer and encrypts vector, then appends to StringBuilder.
+
         int[] vectorAsArray = Utils.stringToIntegerArray(vector);
         encryptedVector = matrixUtils.multiplyCodeWithMatrix(vectorAsArray, generatingMatrix);
-        //encodedVectorsList.add(encryptedVector);
         encodedVectorStringBuilder.append(Utils.intArrayToString(encryptedVector));
-    }
-
-    public static boolean arrayToBMP(byte[] pixelData, int width, int height, File outputFile) throws IOException {
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-        img.setData(Raster.createRaster(img.getSampleModel(), new DataBufferByte(pixelData, pixelData.length), null));
-        return javax.imageio.ImageIO.write(img, "bmp", outputFile);
     }
 
     @Override
@@ -464,6 +453,10 @@ public class PictureScenarioController implements Initializable {
     }
 
     public int[] corruptedVectorBackToGivenVectorSize(int[] encryptedVector, int matrixColumnNumb, int matrixRowNumb) {
+        //Function which is intended to convert corrupted vector of size n, to size k,
+        //  so it would be possible to create corrupted image
+        //Function takes vector of size k, k and n numbers and returns vector of size n
+
         int vectorToReturnLength = matrixColumnNumb - (matrixColumnNumb-matrixRowNumb);
         int[] vectorToReturn = new int[vectorToReturnLength];
         for (int j=0; j<vectorToReturnLength; j++)
@@ -474,8 +467,10 @@ public class PictureScenarioController implements Initializable {
     }
 
     private boolean checkIfGeneratingMatrixIsCorrect(){
+
         boolean alert = false;
 
+        //Check if generating matrix are is empty
         if(matrixTextArea.getText().isEmpty())
         {
             Utils.createAlert("Neužpildyta generuojanti matrica",
@@ -486,11 +481,13 @@ public class PictureScenarioController implements Initializable {
 
             if(scannedMatrix!=null){
 
+                //Check if entered generating matrix rows match entered parameters
                 if (scannedMatrix.length != matrixRowNumb) {
                     Utils.createAlert("Neteisingai įvesta generuojanti matrica",
                             "Prašome užpildyti generuojančios matricos lauką tinkamai, eilučių skaičius turi būti lygus dimensijai");
                     alert = true;
                 } else {
+                    //Check if entered generating matrix columns match entered parameters
                     int columnLength = scannedMatrix[0].length;
                     for (int i = 0; i < scannedMatrix.length; i++) {
                         if (columnLength != scannedMatrix[i].length) {
@@ -500,10 +497,12 @@ public class PictureScenarioController implements Initializable {
                         }
                     }
                     if (!alert) {
+                        //If entered generating matrix rows and columns match entered parameters -> full matrix was entered
                         if (columnLength == matrixColumnNumb) {
                             generatingMatrix = scannedMatrix;
-
-                        } else if (columnLength == matrixColumnNumb - matrixRowNumb) {
+                        }
+                        //If entered generating matrix rows match entered parameters and columns are entered columns - rows -> A part of matrix was entered
+                        else if (columnLength == matrixColumnNumb - matrixRowNumb) {
                             int[][] unitMa = matrixUtils.generateIdentityMatrix(matrixRowNumb);
                             generatingMatrix = matrixUtils.generateGeneratingMatrix(unitMa, scannedMatrix);
                             Utils.setMatrixTextArea(generatingMatrix, matrixTextArea);

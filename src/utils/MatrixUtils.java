@@ -8,6 +8,8 @@ public class MatrixUtils implements MatrixUtilsInterface{
     @Override
     public int[][] generateIdentityMatrix(Integer dimension)
     {
+        //Function to generate identity matrix of size dimension x dimension, with given dimension
+
         int[][] unitaryMatrix = new int[dimension][dimension];
         for (int i = 0; i<dimension; i++)
         {
@@ -24,6 +26,8 @@ public class MatrixUtils implements MatrixUtilsInterface{
 
     @Override
     public int[][] generateGeneratingMatrix(int[][] identityMatrix, int[][] anotherMatrix) {
+        //Function to generate generating matrix by joining given identity and another matrix, returns joined matrix
+
         int rows = identityMatrix.length;
         int columns = identityMatrix.length + anotherMatrix[0].length;
         int[][] generatingMatrix = new int[rows][columns];
@@ -47,6 +51,8 @@ public class MatrixUtils implements MatrixUtilsInterface{
 
     public int[][] generateRandomMatrix(Integer rows, Integer columns)
     {
+        //Function to generate random binary matrix of size rows x columns, returns generating matrix
+
         int[][] randomMatrix = new int[rows][columns];
 
         int max = 1, min = 0;
@@ -65,6 +71,8 @@ public class MatrixUtils implements MatrixUtilsInterface{
     @Override
     public int[] multiplyCodeWithMatrix(int[] vector, int [][] matrix)
     {
+        //Function to multiply given vector with given matrix, returns new matrix
+
         int rows = matrix.length;
         int columns = matrix[0].length;
         int sum = 0;
@@ -90,6 +98,9 @@ public class MatrixUtils implements MatrixUtilsInterface{
 
     @Override
     public int[][] transposeMatrix(int[][] matrix) {
+        //Function to transpose matrix. Given matrix of dimensions n x k, returns new matrix of dimensions k x n
+        //  rows switched with columns
+
         int[][] transposedMatrix = new int[matrix[0].length][matrix.length];
         int tRow = 0,tColumn = 0;
 
@@ -107,9 +118,11 @@ public class MatrixUtils implements MatrixUtilsInterface{
     }
 
     @Override
-    public int[][] generateControlMatrix(int[][] matrix) {
-        //identity matrix yra n x n, kiek eiluciu tiek.
-        //stulpeliu sk. db eiluciu sk, ir eiluciu sk. db stulp. sk.
+    public int[][] generateControlMatrix(int[][] matrix)
+    {
+        //Generate control matrix -> transpose given matrix, join with new identity matrix
+        //     return new matrix.
+
         int[][] hMatrix;
         int[][] matrixToTranspose;
         if(matrix[0].length != matrix.length)
@@ -132,11 +145,12 @@ public class MatrixUtils implements MatrixUtilsInterface{
             hMatrix = generateIdentityMatrix(matrix.length);
             return hMatrix;
         }
-        //reikia issiimti A matrica
     }
 
     @Override
     public int[][] joinMatrices(int[][] oneMatrix, int[][] twoMatrix) {
+        //Join two given matrixes and return new matrix
+
         if(oneMatrix.length == twoMatrix.length)
         {
             int rows = oneMatrix.length;
@@ -163,6 +177,9 @@ public class MatrixUtils implements MatrixUtilsInterface{
 
     @Override
     public int[] generateVectorWithOneinI(int i, int size) {
+        //Function to generate vector of given size in zeros, just in one 1 in i place
+        //  return vector of zeros with 1 in ith place
+
         int[] vector = new int[size];
 
         for(int n =0; n<size; n++)
@@ -177,6 +194,8 @@ public class MatrixUtils implements MatrixUtilsInterface{
 
     @Override
     public int[] addVectors(int[] vectorOne, int[] vectorTwo) {
+        //Sum two given vectors and return summed one
+
         int[] addedVectors = new int[vectorOne.length];
         for(int i=0; i<vectorOne.length; i++)
         {
@@ -189,6 +208,8 @@ public class MatrixUtils implements MatrixUtilsInterface{
 
     @Override
     public int[] multiplyMatrixWithCode(int[][] matrix, int[] vector) {
+        //Multiply given matrix with vector and return multiplied matrix
+
         int rows = matrix.length;
         int columns = matrix[0].length;
         int sum = 0;
@@ -213,6 +234,10 @@ public class MatrixUtils implements MatrixUtilsInterface{
 
     @Override
     public int[] sendVectorThroughChanel(int[] vector, double probability) {
+        //Function which takes vector and corruption probability
+        //  generate random number and if it is less than given probability
+        //  change element in vector return new vector with changed values
+
         int[] encryptedVector = vector;
 
         for(int i=0; i<vector.length; i++)
@@ -229,19 +254,25 @@ public class MatrixUtils implements MatrixUtilsInterface{
 
     @Override
     public int[] decodeVector(int[] encryptedVector, Map<String, Integer> syndromeMap, int[][] controlMatrix, int matrixColumnNumb, int matrixRowNumb) {
+        //Function to decode given vector, using guven control matrix and syndromes, k and n.
+        //      Return decoded vector.
+
         int[] r = encryptedVector;
         for (int i = 0; i < r.length; i++) {
 
-            //randam vektoriaus sindroma
+            //Finding syndrome of vector
             int[] syndrome = multiplyMatrixWithCode(controlMatrix, r);
 
-            //randam sindromo svori
+            //Finding weight of syndrome
             int weight = syndromeMap.get(Arrays.toString(syndrome).replaceAll("\\[|\\]|,|\\s", ""));
 
-            //jei svoris 0 break, otherwise
+            //If weight is equal 0 => break
             if (weight == 0) {
                 break;
             } else {
+                //If weight is not 0, create new vectors with 1's in different places add them with vector and check if weight is lower
+                //      if it is then save new vector.
+
                 int[] eVector = generateVectorWithOneinI(i, r.length);
                 int[] ePlusRVector = addVectors(r, eVector);
 

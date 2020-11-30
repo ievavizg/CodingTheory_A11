@@ -79,13 +79,20 @@ public class Utils {
 
                 for (String numberInString : newLine.split(" ")) {
                     matrix[i][j] = Integer.parseInt(numberInString);
+                    if(matrix[i][j] > 1)
+                    {
+                        alert = true;
+                        createAlert("Netinkama matricos struktūra", "Netinkami skaičiai matricoje");
+                    }
                     j++;
                 }
                 i++;
             }
         }
 
-        return matrix;
+        if(!alert)
+            return matrix;
+        else return null;
     }
 
     public static void setMatrixTextArea(int[][] matrix, TextArea textArea)
