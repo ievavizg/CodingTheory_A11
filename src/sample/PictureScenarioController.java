@@ -360,6 +360,7 @@ public class PictureScenarioController implements Initializable {
 
                 //<<
 
+                //Saving Header information (TARNYBINE informacija)
                 imageImportantBytes = Arrays.copyOfRange(fileBytes, 0, 54);
 
                 byte[] fileBytesToEncode = Arrays.copyOfRange(fileBytes,54,fileBytes.length);
