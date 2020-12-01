@@ -157,11 +157,8 @@ public class TextScenarioController implements Initializable {
             String corruptedText = "";
             String decodedCorrupted = "";
 
-            if (zerosAddedToVector.length() != 0)
-            {
-                corruptedText = corruptedStringBuilderInBinary.toString().substring(0,corruptedStringBuilderInBinary.length()-zerosAddedToVector.length());
-                decodedCorrupted =  decodedCorruptedStringBuilderInBinary.toString().substring(0,decodedCorruptedStringBuilderInBinary.length()-zerosAddedToVector.length());
-            }
+            corruptedText = corruptedStringBuilderInBinary.toString().substring(0,corruptedStringBuilderInBinary.length()-zerosAddedToVector.length());
+            decodedCorrupted =  decodedCorruptedStringBuilderInBinary.toString().substring(0,decodedCorruptedStringBuilderInBinary.length()-zerosAddedToVector.length());
 
             //Convert binaries to text and display
             String corruptedTextinBinary = Utils.binaryToText(corruptedText);
@@ -279,7 +276,6 @@ public class TextScenarioController implements Initializable {
         //Function which is intended to convert corrupted vector of size n, to size k,
         //  so it would be possible to create corrupted image
         //Function takes vector of size k, k and n numbers and returns vector of size n
-
         int vectorToReturnLength = matrixColumnNumb - (matrixColumnNumb-matrixRowNumb);
         int[] vectorToReturn = new int[vectorToReturnLength];
         for (int j=0; j<vectorToReturnLength; j++)
